@@ -20,20 +20,6 @@ public class TaskManager {
         return id;
     }
 
-    public ArrayList<String> getIssueList(){
-        ArrayList<String> issues = new ArrayList<String>();
-        for (int i = 0; i <= getLastId(); i++){
-            if (epicList.get(i) != null) {
-                issues.add(epicList.get(i).name);
-            }
-        }
-        for (int i = 0; i <= getLastId(); i++){
-            if (subtaskList.get(i) != null) {
-                issues.add(subtaskList.get(i).name);
-            }
-        }
-        return issues;
-    }
 
     // методы для класса Epic
     public HashMap<Integer, Epic> getEpicList(){

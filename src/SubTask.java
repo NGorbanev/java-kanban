@@ -21,15 +21,6 @@ public class SubTask extends Task {
 
     public void changeStatus(String toStatus){
         setStatus(toStatus);
-        /*
-        boolean statusFound = false;
-        for (int i = 0; i < statusList.length; i++) {
-            if (toStatus.equals(statusList[i])){
-                statusFound = true;
-                status = i;
-            }
-        }
-         */
         taskManager.updateSubTask(this);
     }
 
