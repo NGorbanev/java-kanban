@@ -1,53 +1,59 @@
+import Issues.Epic;
+import Issues.SubTask;
+import Issues.Task;
+import TaskManager.TaskManager;
+
 public class Main {
 
     public static void main(String[] args) {
         TaskManager taskManager = new TaskManager();
         // далее - разного рода проверки. Оставил все на случай исправлений
-        System.out.println("Проверка основного класса Task");
+        System.out.println("Проверка основного класса Issues.Task");
         System.out.println("Создание задач.. ");
-        Task task1 = new Task("Проверить класса Task", "Создать первую задачу");
-        Task task2 = new Task("Проверить счетчика", "Создать вторую задачу");
+
+        Task task1 = taskManager.createTask("Проверить класса Issues.Task", "Создать первую задачу");
+        Task task2 = taskManager.createTask("Проверить счетчика", "Создать вторую задачу");
+
         System.out.println("Созданы задачи: " + task1.getId() + ", " + task2.getId());
         System.out.println("\nМеняем статусы задач: ");
-        if (!task1.setStatus("AnyStatus")) System.out.println("Task" + task1.getId() + " error: статус не изменен");
-        task2.setStatus("DONE");
+        taskManager.setTaskStatus(task2, "DONE");
         System.out.println("➡️ " + task1.name + ", ID: " + task1.getId() + ", Статус: " + task1.getStatus());
         System.out.println("➡️ " + task2.name + ", ID: " + task2.getId() + ", Статус: " + task2.getStatus());
 
-        System.out.println("\nПроверка класса Epic");
+        System.out.println("\nПроверка класса Issues.Epic");
         String[] epicsNames = new String[]{"Построить дом", "Сварить картошку", "Лечь спать"};
         String[] epicDescriptions = new String[]{"Надо ж где-то жить", "Надо ж что-то есть", "Надо ж отдохнуть"};
         for (int i = 0; i < 3; i++) {
-            Epic epic = new Epic(epicsNames[i], epicDescriptions[i]);
+            Epic epic =  taskManager.createEpic(epicsNames[i], epicDescriptions[i]);
             System.out.println("Создан " + epic.getClass() + ", ID: " + epic.getId());
             System.out.println("Название: " + epic.name);
             System.out.println("Название: " + epic.description);
         }
-        System.out.println("\nПроверка SubTask и алгоритма вычисления статуса эпика");
-        SubTask subTask = new SubTask("Залить фундамент", "Лучше не сиропом", 3);
-        subTask.changeStatus("DONE");
-        subTask = new SubTask("Построить стены", "Из дерева", 3);
-        subTask.changeStatus("NEW");
-        subTask = new SubTask("Почистить картошку", "ножом надо", 4);
-        subTask.changeStatus("DONE");
-        subTask = new SubTask("Помыть картошку", "чистой водой", 4);
-        subTask = new SubTask("Вскипятить воду", "в катрюле", 4);
-        subTask.changeStatus("IN_PROGRESS");
+        System.out.println("\nПроверка Issues.SubTask и алгоритма вычисления статуса эпика");
+        SubTask subTask = taskManager.createSubTask("Залить фундамент", "Лучше не сиропом", 3);
+        taskManager.setSubTaskStatus(subTask, "DONE");
+        subTask = taskManager.createSubTask("Построить стены", "Из дерева", 3);
+        taskManager.setSubTaskStatus(subTask, "NEW");
+        subTask = taskManager.createSubTask("Почистить картошку", "ножом надо", 4);
+        taskManager.setSubTaskStatus(subTask, "DONE");
+        subTask = taskManager.createSubTask("Помыть картошку", "чистой водой", 4);
+        subTask = taskManager.createSubTask("Вскипятить воду", "в катрюле", 4);
+        taskManager.setSubTaskStatus(subTask, "IN_PROGRESS");
         Epic testEpic = taskManager.getEpicById(3); // проверка методо получения epic по идентификатору
         System.out.println(testEpic.getStatus() + ": " + testEpic.name);
         System.out.println("(" + testEpic.description + "):");
-        for (int i = 0; i < testEpic.showSubTasks().size(); i++){
-            System.out.println(" " + taskManager.getSubtaskList().get(testEpic.showSubTasks().get(i)).getStatus() +
-                    ": " + taskManager.getSubtaskList().get(testEpic.showSubTasks().get(i)).name +
-                    " (" + taskManager.getSubtaskList().get(testEpic.showSubTasks().get(i)).description + ")");
+        for (int i = 0; i < testEpic.getSubTasks().size(); i++){
+            System.out.println(" " + taskManager.getSubtaskList().get(testEpic.getSubTasks().get(i)).getStatus() +
+                    ": " + taskManager.getSubtaskList().get(testEpic.getSubTasks().get(i)).name +
+                    " (" + taskManager.getSubtaskList().get(testEpic.getSubTasks().get(i)).description + ")");
         }
         testEpic = taskManager.getEpicById(4);
         System.out.println(testEpic.getStatus() + ": " + testEpic.name);
         System.out.println("(" + testEpic.description + "):");
-        for (int i = 0; i < testEpic.showSubTasks().size(); i++){
-            System.out.println(" " + taskManager.getSubtaskList().get(testEpic.showSubTasks().get(i)).getStatus() +
-                    ": " + taskManager.getSubtaskList().get(testEpic.showSubTasks().get(i)).name +
-                    " (" + taskManager.getSubtaskList().get(testEpic.showSubTasks().get(i)).description + ")");
+        for (int i = 0; i < testEpic.getSubTasks().size(); i++){
+            System.out.println(" " + taskManager.getSubtaskList().get(testEpic.getSubTasks().get(i)).getStatus() +
+                    ": " + taskManager.getSubtaskList().get(testEpic.getSubTasks().get(i)).name +
+                    " (" + taskManager.getSubtaskList().get(testEpic.getSubTasks().get(i)).description + ")");
         }
         System.out.println("\nПроверка методов менеджера");
         System.out.println(taskManager.getEpicList().toString()); // получение списка всех эпиков
@@ -93,7 +99,7 @@ public class Main {
         System.out.println(taskManager.getTaskList());
 
         System.out.println("\nUpdate одной таски и удаление второй");
-        Task task3 = new Task("Проверить класса Task", "Проверить удаление таски");
+        Task task3 = taskManager.createTask("Проверить класса Issues.Task", "Проверить удаление таски");
         taskManager.deleteTaskById(task3.getId());
     }
 }
