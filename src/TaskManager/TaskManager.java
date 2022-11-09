@@ -11,7 +11,7 @@ import java.util.HashMap;
 public class TaskManager {
 
     // собственные поля и хранение данных
-    public static HashMap<Integer, Epic> epicList = new HashMap<>();
+    private static HashMap<Integer, Epic> epicList = new HashMap<>();
     private static HashMap<Integer, SubTask> subtaskList = new HashMap<>();
     private static HashMap<Integer, Task> taskList = new HashMap<>();
     private static int id; // счетчик для ID задач
@@ -29,10 +29,10 @@ public class TaskManager {
 
     // методы для класса Issues.Epic
     public Epic createEpic(String name, String description){
-        Epic epic = new Epic();
-        epic.name = name;
-        epic.description = description;
-        epic.setId(generateId());
+        Epic epic = new Epic(name, description, 0, generateId());
+        //epic.name = name;
+        //epic.description = description;
+        //epic.setId(generateId());
         updateEpic(epic);
         return epic;
     }
@@ -59,9 +59,9 @@ public class TaskManager {
             }
             if (statusCounter <= 0) isDONE = true;
         }
-        if (!isDONE && isInProgress) epic.status = 1;
-        else if (isDONE) epic.status = 2;
-        else epic.status = 0;
+        if (!isDONE && isInProgress) epic.setStatus(1);
+        else if (isDONE) epic.setStatus(2);
+        else epic.setStatus(0);
         updateEpic(epic);
     }
 
@@ -81,8 +81,9 @@ public class TaskManager {
             for(int i = 0; i < epicList.size(); i++){
                 epic = epicList.get(issueId);
             }
+            return epic;
         }
-        return epic;
+        return null;
     }
 
     public void deleteEpicById(int epicID){
@@ -111,10 +112,10 @@ public class TaskManager {
     // методы Issues.SubTask
     public SubTask createSubTask(String name, String description, int parentEpic){
         Epic epic = getEpicById(parentEpic);
-        SubTask subTask = new SubTask();
-        subTask.name = name;
-        subTask.description = description;
-        subTask.setId(generateId());
+        SubTask subTask = new SubTask(name, description, 0, parentEpic, generateId());
+        //subTask.name = name;
+        //subTask.description = description;
+        //subTask.setId(generateId());
         epic.addSubTaskToEpic(subTask);
         subTask.setParentEpic(parentEpic);
         subtaskList.put(subTask.getId(), subTask);
@@ -132,7 +133,7 @@ public class TaskManager {
         for (int i = 0; i <  statusList.length; i++) {
             if (newStatus.equals(statusList[i])){
                 statusFound = true;
-                subTask.status = i;
+                subTask.setStatus(i);
                 updateSubTask(subTask);
             }
         }
@@ -186,10 +187,7 @@ public class TaskManager {
 
     // матоды Issues.Task
     public Task createTask(String name, String description){
-        Task task = new Task();
-        task.name = name;
-        task.description = description;
-        task.setId(generateId());
+        Task task = new Task(name, description, 0, generateId());
         taskList.put(task.getId(), task);
         return task;
     }
@@ -204,7 +202,7 @@ public class TaskManager {
         for (int i = 0; i <  statusList.length; i++) {
             if (newStatus.equals(statusList[i])){
                 statusFound = true;
-                task.status = i;
+                task.setStatus(1);
                 updateTask(task);
 
             }

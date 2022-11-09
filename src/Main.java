@@ -1,105 +1,71 @@
-import Issues.Epic;
 import Issues.SubTask;
 import Issues.Task;
+import Issues.Epic;
 import TaskManager.TaskManager;
+import java.util.ArrayList;
 
 public class Main {
 
     public static void main(String[] args) {
         TaskManager taskManager = new TaskManager();
-        // далее - разного рода проверки. Оставил все на случай исправлений
-        System.out.println("Проверка основного класса Issues.Task");
-        System.out.println("Создание задач.. ");
 
-        Task task1 = taskManager.createTask("Проверить класса Issues.Task", "Создать первую задачу");
-        Task task2 = taskManager.createTask("Проверить счетчика", "Создать вторую задачу");
-
-        System.out.println("Созданы задачи: " + task1.getId() + ", " + task2.getId());
-        System.out.println("\nМеняем статусы задач: ");
-        taskManager.setTaskStatus(task2, "DONE");
-        System.out.println("➡️ " + task1.name + ", ID: " + task1.getId() + ", Статус: " + task1.getStatus());
-        System.out.println("➡️ " + task2.name + ", ID: " + task2.getId() + ", Статус: " + task2.getStatus());
-
-        System.out.println("\nПроверка класса Issues.Epic");
-        String[] epicsNames = new String[]{"Построить дом", "Сварить картошку", "Лечь спать"};
-        String[] epicDescriptions = new String[]{"Надо ж где-то жить", "Надо ж что-то есть", "Надо ж отдохнуть"};
-        for (int i = 0; i < 3; i++) {
-            Epic epic =  taskManager.createEpic(epicsNames[i], epicDescriptions[i]);
-            System.out.println("Создан " + epic.getClass() + ", ID: " + epic.getId());
-            System.out.println("Название: " + epic.name);
-            System.out.println("Название: " + epic.description);
+        // проверяем работу с тасками
+        String[] taskNames = new String[] {"Проверить работу приложения", "Проверить работу методов создания " +
+                "тасок", "Проверить работу методов модификации тасок"};
+        String[] taskDescriptions = new String[]{"Убедиться что оно вообще запускается", "Убедиться что таски " +
+                "создаются как надо", "Проверить модификатора изменения статусов, удаления тасок"};
+        for (int i = 0; i <= 2; i++){
+            Task task = taskManager.createTask(taskNames[i], taskDescriptions[i]);
+            if (i == 0) task.setStatus(2);
+            if (i == 1) task.setStatus(1);
+            if (i == 2) task.setStatus(1);
+            System.out.println("Создана таска ID: " + task.getId() + ", Статус " + task.getStatus() + "\n"
+                    + task.getName() + "\n" + task.getDescription() + "\n");
+            if (i == 2) {
+                taskManager.deleteTaskById(task.getId());
+                System.out.println("Последняя задача удалена, значит все работает корректно" +
+                        "\nСписок тасок на сейчас: " + taskManager.getTaskList().toString());
+            }
         }
-        System.out.println("\nПроверка Issues.SubTask и алгоритма вычисления статуса эпика");
-        SubTask subTask = taskManager.createSubTask("Залить фундамент", "Лучше не сиропом", 3);
-        taskManager.setSubTaskStatus(subTask, "DONE");
-        subTask = taskManager.createSubTask("Построить стены", "Из дерева", 3);
-        taskManager.setSubTaskStatus(subTask, "NEW");
-        subTask = taskManager.createSubTask("Почистить картошку", "ножом надо", 4);
-        taskManager.setSubTaskStatus(subTask, "DONE");
-        subTask = taskManager.createSubTask("Помыть картошку", "чистой водой", 4);
-        subTask = taskManager.createSubTask("Вскипятить воду", "в катрюле", 4);
+        if (!taskManager.getTaskList().containsKey(3)) {
+            Task task = taskManager.createTask("Проверить работу алгоритма формирования идентификатора",
+                    "У этой задачи должен быть ID = 4");
+            task.setStatus(2);
+            System.out.println("\nСоздана таска ID: " + task.getId() + ", Статус " + task.getStatus() + "\n"
+                    + task.getName() + "\n" + task.getDescription() + "\n");
+        }
+
+        // проверяем работу с эпиками и сабтасками
+        Epic epic1 = taskManager.createEpic("Проврить создание эпика и подзадач", "привязать пару " +
+                "подзадач к этому эпику");
+        Epic epic2 = taskManager.createEpic("Проверить работу алгоритма расчета статуса эпика",
+                "привязать три подзадачи в разных статусах и проверить как посчитается статус эпика");
+       // System.out.println("Создан эпик ID: " + epic1.getId() + ", Статус " + epic1.getStatus() + "\n"
+       //         + epic1.getName() + "\n" + epic1.getDescription() + "\n");
+
+        SubTask subTask = taskManager.createSubTask("Подзадача 1", "первого эпика", 5);
+        subTask = taskManager.createSubTask("Подзадача 2", "первого эпика", 5);
+        subTask = taskManager.createSubTask("Подзадача 1 (статус Инпрог)", "второго эпика", 6);
         taskManager.setSubTaskStatus(subTask, "IN_PROGRESS");
-        Epic testEpic = taskManager.getEpicById(3); // проверка методо получения epic по идентификатору
-        System.out.println(testEpic.getStatus() + ": " + testEpic.name);
-        System.out.println("(" + testEpic.description + "):");
-        for (int i = 0; i < testEpic.getSubTasks().size(); i++){
-            System.out.println(" " + taskManager.getSubtaskList().get(testEpic.getSubTasks().get(i)).getStatus() +
-                    ": " + taskManager.getSubtaskList().get(testEpic.getSubTasks().get(i)).name +
-                    " (" + taskManager.getSubtaskList().get(testEpic.getSubTasks().get(i)).description + ")");
-        }
-        testEpic = taskManager.getEpicById(4);
-        System.out.println(testEpic.getStatus() + ": " + testEpic.name);
-        System.out.println("(" + testEpic.description + "):");
-        for (int i = 0; i < testEpic.getSubTasks().size(); i++){
-            System.out.println(" " + taskManager.getSubtaskList().get(testEpic.getSubTasks().get(i)).getStatus() +
-                    ": " + taskManager.getSubtaskList().get(testEpic.getSubTasks().get(i)).name +
-                    " (" + taskManager.getSubtaskList().get(testEpic.getSubTasks().get(i)).description + ")");
-        }
-        System.out.println("\nПроверка методов менеджера");
-        System.out.println(taskManager.getEpicList().toString()); // получение списка всех эпиков
-        System.out.println(taskManager.getSubtaskList().toString()); // получаем список подзадач
+        subTask = taskManager.createSubTask("Подзадача 3 (статус Нью)", "второго эпика", 6);
+        taskManager.setSubTaskStatus(subTask, "Типа статус ");
+        subTask = taskManager.createSubTask("Подзадача 2 (статус ДАН)", "второго эпика", 6);
+        taskManager.setSubTaskStatus(subTask, "DONE");
 
-        System.out.println("\nУдаляем эпик и проверяем что удалились и его подзадачи");
-        taskManager.deleteEpicById(3); // удаляем эпик
-        System.out.println(taskManager.getEpicList().toString()); // получение списка всех задач
-        System.out.println(taskManager.getSubtaskList().toString()); // получаем список подзадач
-
-        System.out.println("\nПолучаем список сабтасков эпика '" + taskManager.getEpicById(4).name + "':");
-        //System.out.println(taskManager.getAllSubtasksByEpicId(4));
-        for(int i = 0; i < taskManager.getAllSubtasksByEpicId(4).size(); i++){
-            SubTask s = taskManager.getAllSubtasksByEpicId(4).get(i);
-            System.out.println("ID "+ s.getId() + ": " + s.name);
+        for (int i = 0; i <= taskManager.getLastId(); i ++){
+            if (taskManager.getEpicById(i) != null) {
+                Epic epic = taskManager.getEpicById(i);
+                System.out.println("\nСоздан эпик ID: " + epic.getId() + ", Статус " + epic.getStatus() + "\n"
+                        + epic.getName() + "\n" + epic.getDescription());
+                if (epic.getSubTasks() != null){
+                    System.out.println("Список подзадач эпика: ");
+                    for (Integer item: epic.getSubTasks()){
+                        SubTask sTask = taskManager.getSubTaskById(item);
+                        System.out.println(sTask.getId() + " " + sTask.getStatus() + ": " + sTask.getName());
+                    }
+                }
+            }
         }
 
-        System.out.println("\nПроверка получения всех сабтасок");
-        System.out.println(taskManager.getSubtaskList().toString()); // получение списка всех задач
-        System.out.println("\nУдаляем одну сабтаску и проверяем что ее больше нет и в эпике нет связи с ней");
-        testEpic = taskManager.getEpicById(taskManager.getSubtaskList().get(9).getParentEpicId());
-        taskManager.deleteSubTaskById(8);
-        System.out.println("Список сабтасок после удаления: " + taskManager.getSubtaskList().toString() +
-                "\nСписок сабтасок эпика " + testEpic.name +
-                "\n" + taskManager.getAllSubtasksByEpicId(testEpic.getId()));
-
-        System.out.println("\nМетода получения сабтаски по ID");
-        SubTask s = taskManager.getSubTaskById(10);
-        System.out.println("Название " + s.name + " ID: " + s.getId() + "\nОписание: " + s.description +
-                "\nРодительский эпик: " + taskManager.getEpicById(s.getParentEpicId()).name);
-
-        System.out.println("\nПроверка метода удаления всех сабтасок\nУдаление.. ");
-        taskManager.deleteAllSubTasks();
-        System.out.println("Удалено. Вывод списка subTaskList:");
-        System.out.println(taskManager.getSubtaskList().toString()); // получаем список подзадач
-
-        System.out.println("\nУдаляем все эпики и их поздадачи соответственно");
-        taskManager.deleteAllEpics();
-        System.out.println(taskManager.getEpicList().toString()); // получение списка всех задач
-        System.out.println(taskManager.getSubtaskList().toString()); // получаем список подзадач
-
-        System.out.println("\nПолучение списка всех тасок");
-        System.out.println(taskManager.getTaskList());
-
-        System.out.println("\nUpdate одной таски и удаление второй");
-        Task task3 = taskManager.createTask("Проверить класса Issues.Task", "Проверить удаление таски");
-        taskManager.deleteTaskById(task3.getId());
     }
 }
