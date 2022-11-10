@@ -2,7 +2,6 @@ import Issues.SubTask;
 import Issues.Task;
 import Issues.Epic;
 import TaskManager.TaskManager;
-import java.util.ArrayList;
 
 public class Main {
 
@@ -16,9 +15,9 @@ public class Main {
                 "создаются как надо", "Проверить модификатора изменения статусов, удаления тасок"};
         for (int i = 0; i <= 2; i++){
             Task task = taskManager.createTask(taskNames[i], taskDescriptions[i]);
-            if (i == 0) task.setStatus(2);
-            if (i == 1) task.setStatus(1);
-            if (i == 2) task.setStatus(1);
+            if (i == 0) taskManager.setTaskStatus(task, "NEW");
+            if (i == 1) taskManager.setTaskStatus(task, "IN_PROGRESS");
+            if (i == 2) taskManager.setTaskStatus(task, "DONE");
             System.out.println("Создана таска ID: " + task.getId() + ", Статус " + task.getStatus() + "\n"
                     + task.getName() + "\n" + task.getDescription() + "\n");
             if (i == 2) {
@@ -45,11 +44,11 @@ public class Main {
 
         SubTask subTask = taskManager.createSubTask("Подзадача 1", "первого эпика", 5);
         subTask = taskManager.createSubTask("Подзадача 2", "первого эпика", 5);
-        subTask = taskManager.createSubTask("Подзадача 1 (статус Инпрог)", "второго эпика", 6);
-        taskManager.setSubTaskStatus(subTask, "IN_PROGRESS");
-        subTask = taskManager.createSubTask("Подзадача 3 (статус Нью)", "второго эпика", 6);
-        taskManager.setSubTaskStatus(subTask, "Типа статус ");
-        subTask = taskManager.createSubTask("Подзадача 2 (статус ДАН)", "второго эпика", 6);
+        subTask = taskManager.createSubTask("Подзадача 1 ", "второго эпика", 6);
+        taskManager.setSubTaskStatus(subTask, "NEW");
+        subTask = taskManager.createSubTask("Подзадача 3 ", "второго эпика", 6);
+        taskManager.setSubTaskStatus(subTask, "NEW");
+        subTask = taskManager.createSubTask("Подзадача 2 ", "второго эпика", 6);
         taskManager.setSubTaskStatus(subTask, "DONE");
 
         for (int i = 0; i <= taskManager.getLastId(); i ++){
@@ -66,6 +65,22 @@ public class Main {
                 }
             }
         }
-
+        taskManager.deleteSubTaskById(11);
+        System.out.println("Subtasks of 6th epic:  " + taskManager.getAllSubtasksByEpicId(6).toString());
+        for (int i = 0; i <= taskManager.getLastId(); i ++){
+            if (taskManager.getEpicById(i) != null) {
+                Epic epic = taskManager.getEpicById(i);
+                System.out.println("\nЭпик ID: " + epic.getId() + ", Статус " + epic.getStatus() + "\n"
+                        + epic.getName() + "\n" + epic.getDescription());
+                if (epic.getSubTasks() != null){
+                    System.out.println("Список подзадач эпика: ");
+                    for (Integer item: epic.getSubTasks()){
+                        SubTask sTask = taskManager.getSubTaskById(item);
+                        System.out.println(sTask.getId() + " " + sTask.getStatus() + ": " + sTask.getName());
+                    }
+                }
+            }
+        }
+        System.out.println(taskManager.getEpicList().toString());
     }
 }
