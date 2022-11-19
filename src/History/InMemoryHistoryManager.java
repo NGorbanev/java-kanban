@@ -1,6 +1,7 @@
 package History;
 
 
+import Interfaces.HistoryManager;
 import Issues.Task;
 import java.util.ArrayList;
 
