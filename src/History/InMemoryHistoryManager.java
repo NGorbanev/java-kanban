@@ -7,9 +7,6 @@ import java.util.ArrayList;
 
 public class InMemoryHistoryManager implements HistoryManager {
 
-    //private static ArrayList<Task> history = new ArrayList<>();
-    //private final int maxHistoryStorage = 10; // максимальное количество issue в истории
-
     @Override
     public void addToHistory(Task issue){
         if (history.size() >= maxHistoryStorage){

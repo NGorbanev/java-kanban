@@ -13,12 +13,6 @@ import java.util.HashMap;
 public class InMemoryTaskManager implements TaskManager {
 
     // собственные поля и хранение данных
-    /*
-    private HashMap<Integer, Epic> epicList = new HashMap<>();
-    private HashMap<Integer, SubTask> subtaskList = new HashMap<>();
-    private HashMap<Integer, Task> taskList = new HashMap<>();
-    private int id; // счетчик для ID задач
-     */
     private int id;
 
     // служебные методы
@@ -37,9 +31,6 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public Epic createEpic(String name, String description){
         Epic epic = new Epic(name, description, StatusList.NEW, generateId());
-        //epic.name = name;
-        //epic.description = description;
-        //epic.setId(generateId());
         updateEpic(epic);
         return epic;
     }

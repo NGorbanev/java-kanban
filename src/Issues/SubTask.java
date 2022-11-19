@@ -25,7 +25,4 @@ public class SubTask extends Task {
     public void setParentEpic(int parentEpic){
         this.epicId = parentEpic;
     }
-
-
-
 }
