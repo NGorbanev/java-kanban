@@ -2,6 +2,7 @@ package TaskManager;
 
 import Interfaces.TaskManager;
 import Issues.Epic;
+import Issues.StatusList;
 import Issues.SubTask;
 import Issues.Task;
 
@@ -35,7 +36,7 @@ public class InMemoryTaskManager implements TaskManager {
     // методы для класса Issues.Epic
     @Override
     public Epic createEpic(String name, String description){
-        Epic epic = new Epic(name, description, 0, generateId());
+        Epic epic = new Epic(name, description, StatusList.NEW, generateId());
         //epic.name = name;
         //epic.description = description;
         //epic.setId(generateId());
@@ -53,7 +54,7 @@ public class InMemoryTaskManager implements TaskManager {
         boolean isDONE = false;
         if (statusCounter > 0) {
             for (int index : subTasksList) {
-                switch (getSubtaskList().get(index).getStatus()){
+                switch (getSubtaskList().get(index).getStatus().toString()){
                     case ("IN_PROGRESS"): {
                         isInProgress = true;
                         break;
@@ -66,9 +67,9 @@ public class InMemoryTaskManager implements TaskManager {
             }
             if (statusCounter <= 0) isDONE = true;
         }
-        if (!isDONE && isInProgress) epic.setStatus(1);
-        else if (isDONE) epic.setStatus(2);
-        else epic.setStatus(0);
+        if (!isDONE && isInProgress) epic.setStatus(StatusList.IN_PROGRESS);
+        else if (isDONE) epic.setStatus(StatusList.DONE);
+        else epic.setStatus(StatusList.NEW);
         updateEpic(epic);
     }
 
@@ -127,7 +128,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public SubTask createSubTask(String name, String description, int parentEpic){
         Epic epic = getEpicById(parentEpic);
-        SubTask subTask = new SubTask(name, description, 0, parentEpic, generateId());
+        SubTask subTask = new SubTask(name, description, StatusList.NEW, parentEpic, generateId());
         //subTask.name = name;
         //subTask.description = description;
         //subTask.setId(generateId());
@@ -144,13 +145,13 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void setSubTaskStatus(SubTask subTask, String newStatus){
+    public void setSubTaskStatus(SubTask subTask, StatusList newStatus){
         boolean statusFound = false;
-        String[] statusList = subTask.getStatusList();
+        StatusList[] statusList = subTask.getStatusList();
         for (int i = 0; i <  statusList.length; i++) {
             if (newStatus.equals(statusList[i])){
                 statusFound = true;
-                subTask.setStatus(i);
+                subTask.setStatus(statusList[i]);
                 updateSubTask(subTask);
             }
         }
@@ -212,7 +213,7 @@ public class InMemoryTaskManager implements TaskManager {
     // матоды Issues.Task
     @Override
     public Task createTask(String name, String description){
-        Task task = new Task(name, description, 0, generateId());
+        Task task = new Task(name, description, StatusList.NEW, generateId());
         taskList.put(task.getId(), task);
         return task;
     }
@@ -223,11 +224,11 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void setTaskStatus(Task task, String newStatus){
-        String[] statusList = task.getStatusList();
+    public void setTaskStatus(Task task, StatusList newStatus){
+        StatusList[] statusList = task.getStatusList();
         for (int i = 0; i <  statusList.length; i++) {
             if (newStatus.equals(statusList[i])){
-                task.setStatus(i);
+                task.setStatus(statusList[i]);
                 updateTask(task);
 
             }

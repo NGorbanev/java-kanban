@@ -4,11 +4,12 @@ package History;
 import Issues.Task;
 import java.util.ArrayList;
 
-public class History {
+public class InMemoryHistoryManager implements HistoryManager {
 
-    private static ArrayList<Task> history = new ArrayList<>();
-    private final int maxHistoryStorage = 10; // максимальное количество issue в истории
+    //private static ArrayList<Task> history = new ArrayList<>();
+    //private final int maxHistoryStorage = 10; // максимальное количество issue в истории
 
+    @Override
     public void addToHistory(Task issue){
         if (history.size() >= maxHistoryStorage){
             history.remove(0);
@@ -16,6 +17,7 @@ public class History {
         } else history.add(issue);
     }
 
+    @Override
     public ArrayList<Task> getHistory() {
         return history;
     }

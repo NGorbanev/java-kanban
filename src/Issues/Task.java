@@ -4,12 +4,14 @@ public class Task {
 
     private String name;
     private String description;
-    private int status = 0;
-
+    //private int status = 0;
+    private StatusList status = StatusList.NEW;
     private int id;
-    public static String[] statusList = new String[] {"NEW", "IN_PROGRESS", "DONE"};
+    //public static String[] statusList = new String[] {"NEW", "IN_PROGRESS", "DONE"};
 
-    public Task(String name, String description, int status, int id){
+
+
+    public Task(String name, String description, StatusList status, int id){
         this.name = name;
         this.description = description;
         this.status = status;
@@ -47,18 +49,17 @@ public class Task {
         this.id = id;
     }
 
-    public String getStatus() {
-        return statusList[status];
+    public StatusList getStatus() {
+        //return statusList[status];
+        return status;
     }
 
-    public void setStatus(int newStatus){
-        if (newStatus >= 0 && newStatus < statusList.length) {
-            this.status = newStatus;
-        }
+    public void setStatus(StatusList newStatus){
+        status = newStatus;
     }
 
-    public String[] getStatusList(){
-        return statusList;
+    public StatusList[] getStatusList(){
+        return StatusList.values();
     }
 
 }

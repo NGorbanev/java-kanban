@@ -4,17 +4,17 @@ public class SubTask extends Task {
 
     private int epicId;
 
-    public SubTask(String name, String description, int status, int parentEpicId, int id){
+    public SubTask(String name, String description, StatusList status, int parentEpicId, int id){
         super(name, description, status, id);
         this.epicId = parentEpicId;
     }
 
     @Override
-    public String getStatus() {
+    public StatusList getStatus() {
         return super.getStatus();
     }
 
-    public void setStatus(int newStatus){
+    public void setStatus(StatusList newStatus){
         super.setStatus(newStatus);
     }
 

@@ -1,7 +1,8 @@
 package Interfaces;
 
-import History.History;
+import History.InMemoryHistoryManager;
 import Issues.Epic;
+import Issues.StatusList;
 import Issues.SubTask;
 import Issues.Task;
 
@@ -15,7 +16,7 @@ public interface TaskManager {
     HashMap<Integer, Epic> epicList = new HashMap<>();
     HashMap<Integer, SubTask> subtaskList = new HashMap<>();
     HashMap<Integer, Task> taskList = new HashMap<>();
-    History history = new History();
+    InMemoryHistoryManager history = new InMemoryHistoryManager();
     Integer id = null; // счетчик для ID задач
 
     // служебные методы
@@ -46,7 +47,7 @@ public interface TaskManager {
 
     public HashMap<Integer, SubTask> getSubtaskList();
 
-    public void setSubTaskStatus(SubTask subTask, String newStatus);
+    public void setSubTaskStatus(SubTask subTask, StatusList newStatus);
 
     public void linkSubTask(Epic epic, SubTask subTask);
 
@@ -65,7 +66,7 @@ public interface TaskManager {
 
     public void updateTask(Task task);
 
-    public void setTaskStatus(Task task, String newStatus);
+    public void setTaskStatus(Task task, StatusList newStatus);
 
     public void deleteAllTasks();
 

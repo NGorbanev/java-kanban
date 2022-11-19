@@ -1,15 +1,16 @@
+import Interfaces.TaskManager;
+import Issues.StatusList;
 import Issues.SubTask;
 import Issues.Task;
 import Issues.Epic;
 import TaskManager.InMemoryTaskManager;
-import History.History;
-
-import java.util.ArrayList;
+import History.InMemoryHistoryManager;
+import Utils.Managers;
 
 public class Main {
 
     public static void main(String[] args) {
-        InMemoryTaskManager inMemoryTaskManager = new InMemoryTaskManager();
+        TaskManager inMemoryTaskManager = new Managers().getDefault();
 
         // проверяем работу с тасками
         String[] taskNames = new String[] {"Проверить работу приложения", "Проверить работу методов создания " +
@@ -18,9 +19,9 @@ public class Main {
                 "создаются как надо", "Проверить модификатора изменения статусов, удаления тасок"};
         for (int i = 0; i <= 2; i++){
             Task task = inMemoryTaskManager.createTask(taskNames[i], taskDescriptions[i]);
-            if (i == 0) inMemoryTaskManager.setTaskStatus(task, "NEW");
-            if (i == 1) inMemoryTaskManager.setTaskStatus(task, "IN_PROGRESS");
-            if (i == 2) inMemoryTaskManager.setTaskStatus(task, "DONE");
+            if (i == 0) inMemoryTaskManager.setTaskStatus(task, StatusList.NEW);
+            if (i == 1) inMemoryTaskManager.setTaskStatus(task, StatusList.IN_PROGRESS);
+            if (i == 2) inMemoryTaskManager.setTaskStatus(task, StatusList.DONE);
             System.out.println("Создана таска ID: " + task.getId() + ", Статус " + task.getStatus() + "\n"
                     + task.getName() + "\n" + task.getDescription() + "\n");
             if (i == 2) {
@@ -32,7 +33,7 @@ public class Main {
         if (!inMemoryTaskManager.getTaskList().containsKey(3)) {
             Task task = inMemoryTaskManager.createTask("Проверить работу алгоритма формирования идентификатора",
                     "У этой задачи должен быть ID = 4");
-            task.setStatus(2);
+            task.setStatus(StatusList.DONE);
             System.out.println("\nСоздана таска ID: " + task.getId() + ", Статус " + task.getStatus() + "\n"
                     + task.getName() + "\n" + task.getDescription() + "\n");
         }
@@ -42,17 +43,15 @@ public class Main {
                 "подзадач к этому эпику");
         Epic epic2 = inMemoryTaskManager.createEpic("Проверить работу алгоритма расчета статуса эпика",
                 "привязать три подзадачи в разных статусах и проверить как посчитается статус эпика");
-       // System.out.println("Создан эпик ID: " + epic1.getId() + ", Статус " + epic1.getStatus() + "\n"
-       //         + epic1.getName() + "\n" + epic1.getDescription() + "\n");
 
         SubTask subTask = inMemoryTaskManager.createSubTask("Подзадача 1", "первого эпика", 5);
         subTask = inMemoryTaskManager.createSubTask("Подзадача 2", "первого эпика", 5);
         subTask = inMemoryTaskManager.createSubTask("Подзадача 1 ", "второго эпика", 6);
-        inMemoryTaskManager.setSubTaskStatus(subTask, "NEW");
+        inMemoryTaskManager.setSubTaskStatus(subTask, StatusList.IN_PROGRESS);
         subTask = inMemoryTaskManager.createSubTask("Подзадача 3 ", "второго эпика", 6);
-        inMemoryTaskManager.setSubTaskStatus(subTask, "NEW");
+        inMemoryTaskManager.setSubTaskStatus(subTask, StatusList.DONE);
         subTask = inMemoryTaskManager.createSubTask("Подзадача 2 ", "второго эпика", 6);
-        inMemoryTaskManager.setSubTaskStatus(subTask, "DONE");
+        inMemoryTaskManager.setSubTaskStatus(subTask, StatusList.DONE);
 
         for (int i = 0; i <= inMemoryTaskManager.getLastId(); i ++){
             if (inMemoryTaskManager.getEpicById(i) != null) {
@@ -85,7 +84,7 @@ public class Main {
             }
         }
         System.out.println(inMemoryTaskManager.getEpicList().toString());
-        History h = new History();
+        InMemoryHistoryManager h = new InMemoryHistoryManager();
         System.out.println("История просмотров: \n" + h.getHistory().toString());
     }
 }
