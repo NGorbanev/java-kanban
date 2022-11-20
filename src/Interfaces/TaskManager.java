@@ -6,21 +6,14 @@ import Issues.StatusList;
 import Issues.SubTask;
 import Issues.Task;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 
 public interface TaskManager {
 
-    // собственные поля и хранение данных
-    HashMap<Integer, Epic> epicList = new HashMap<>();
-    HashMap<Integer, SubTask> subtaskList = new HashMap<>();
-    HashMap<Integer, Task> taskList = new HashMap<>();
-    InMemoryHistoryManager history = new InMemoryHistoryManager();
-    Integer id = null; // счетчик для ID задач
-
     // служебные методы
-    public int generateId();
+    public List<Task> getHistory();
 
     public int getLastId();
 
@@ -30,7 +23,7 @@ public interface TaskManager {
     // метод расчета статус эпика, в зависимости от статуса подзадач
     public void checkStatus(Epic targetEpic);
 
-    public ArrayList<Epic> getEpicList();
+    public List<Epic> getEpicList();
 
     public void deleteAllEpics();
 
@@ -38,7 +31,7 @@ public interface TaskManager {
 
     public void deleteEpicById(int epicID);
 
-    public ArrayList<SubTask> getAllSubtasksByEpicId(int epicId);
+    public List<SubTask> getAllSubtasksByEpicId(int epicId);
 
     public void updateEpic(Epic issue);
 

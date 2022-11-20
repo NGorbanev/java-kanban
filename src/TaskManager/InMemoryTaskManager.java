@@ -1,23 +1,39 @@
 package TaskManager;
 
+
+import History.InMemoryHistoryManager;
+import Interfaces.HistoryManager;
 import Interfaces.TaskManager;
 import Issues.Epic;
 import Issues.StatusList;
 import Issues.SubTask;
 import Issues.Task;
+import Utils.Managers;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 
 public class InMemoryTaskManager implements TaskManager {
 
     // собственные поля и хранение данных
+
+    HashMap<Integer, Epic> epicList = new HashMap<>();
+    HashMap<Integer, SubTask> subtaskList = new HashMap<>();
+    HashMap<Integer, Task> taskList = new HashMap<>();
+    HistoryManager history = new Managers().getDefaultHistoryManager();
     private int id;
 
     // служебные методы
+
     @Override
-    public int generateId(){
+    public List<Task> getHistory(){
+        return history.getHistory();
+    }
+
+
+    private int generateId(){
         id = id + 1;
         return id;
     }
@@ -65,7 +81,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public ArrayList<Epic> getEpicList(){
+    public List<Epic> getEpicList(){
         return new ArrayList<>(epicList.values());
     }
 
@@ -96,7 +112,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public ArrayList<SubTask> getAllSubtasksByEpicId(int epicId){
+    public List<SubTask> getAllSubtasksByEpicId(int epicId){
         if (!epicList.containsKey(epicId)) {
             return null;
         }
@@ -120,9 +136,6 @@ public class InMemoryTaskManager implements TaskManager {
     public SubTask createSubTask(String name, String description, int parentEpic){
         Epic epic = getEpicById(parentEpic);
         SubTask subTask = new SubTask(name, description, StatusList.NEW, parentEpic, generateId());
-        //subTask.name = name;
-        //subTask.description = description;
-        //subTask.setId(generateId());
         epic.addSubTaskToEpic(subTask);
         subTask.setParentEpic(parentEpic);
         subtaskList.put(subTask.getId(), subTask);
@@ -236,7 +249,7 @@ public class InMemoryTaskManager implements TaskManager {
         Task foundTask = null;
         if (taskList.containsKey(id)) {
             foundTask = taskList.get(id);
-            history.addToHistory(foundTask);
+            history.addToHistory(taskList.get(id));
         }
         return foundTask;
     }

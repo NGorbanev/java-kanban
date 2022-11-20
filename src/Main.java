@@ -3,13 +3,14 @@ import Issues.StatusList;
 import Issues.SubTask;
 import Issues.Task;
 import Issues.Epic;
-import History.InMemoryHistoryManager;
+
 import Utils.Managers;
 
 public class Main {
 
     public static void main(String[] args) {
         TaskManager inMemoryTaskManager = new Managers().getDefault();
+
 
         // проверяем работу с тасками
         String[] taskNames = new String[] {"Проверить работу приложения", "Проверить работу методов создания " +
@@ -83,7 +84,7 @@ public class Main {
             }
         }
         System.out.println(inMemoryTaskManager.getEpicList().toString());
-        InMemoryHistoryManager h = new InMemoryHistoryManager();
-        System.out.println("История просмотров: \n" + h.getHistory().toString());
+
+        System.out.println("\nИстория просмотров: \n" + inMemoryTaskManager.getHistory().toString());
     }
 }
