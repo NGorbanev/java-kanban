@@ -1,7 +1,6 @@
 package TaskManager;
 
 
-import History.InMemoryHistoryManager;
 import Interfaces.HistoryManager;
 import Interfaces.TaskManager;
 import Issues.Epic;
@@ -32,13 +31,8 @@ public class InMemoryTaskManager implements TaskManager {
         return history.getHistory();
     }
 
-
     private int generateId(){
         id = id + 1;
-        return id;
-    }
-    @Override
-    public int getLastId(){
         return id;
     }
 
@@ -52,7 +46,6 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     // метод расчета статус эпика, в зависимости от статуса подзадач
-    @Override
     public void checkStatus(Epic targetEpic){
         Epic epic = targetEpic;
         ArrayList<Integer> subTasksList = targetEpic.getSubTasks();
@@ -61,7 +54,7 @@ public class InMemoryTaskManager implements TaskManager {
         boolean isDONE = false;
         if (statusCounter > 0) {
             for (int index : subTasksList) {
-                switch (getSubtaskList().get(index).getStatus().toString()){
+                switch (getSubtasks().get(index).getStatus().toString()){
                     case ("IN_PROGRESS"): {
                         isInProgress = true;
                         break;
@@ -142,10 +135,17 @@ public class InMemoryTaskManager implements TaskManager {
         return subTask;
     }
 
-    @Override
-    public HashMap<Integer, SubTask> getSubtaskList() {
+    public HashMap<Integer, SubTask> getSubtasks() {
         HashMap <Integer, SubTask> subTasks = subtaskList;
         return subTasks;
+    }
+
+    public List<SubTask> getSubtaskList(){
+        List<SubTask> sTasks = new ArrayList<>();
+        for (SubTask subTask: subtaskList.values()){
+            sTasks.add(subTask);
+        }
+        return sTasks;
     }
 
     @Override
@@ -207,7 +207,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteAllSubTasks(){
-        for (int i = 0; i <= getLastId(); i++){
+        for (int i = 0; i <= getSubtaskList().size(); i++){
             if (subtaskList.get(i) != null){
                 deleteSubTaskById(subtaskList.get(i).getId());
             }
@@ -260,7 +260,11 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public HashMap<Integer, Task> getTaskList(){
-        return taskList;
+    public List<Task> getTaskList(){
+        List<Task> tList = new ArrayList();
+        for (Task task: taskList.values()){
+            if (task != null) tList.add(task);
+        }
+        return tList;
     }
 }

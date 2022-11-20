@@ -9,7 +9,7 @@ import Utils.Managers;
 public class Main {
 
     public static void main(String[] args) {
-        TaskManager inMemoryTaskManager = new Managers().getDefault();
+        TaskManager inMemoryTaskManager = Managers.getDefault();
 
 
         // проверяем работу с тасками
@@ -30,13 +30,13 @@ public class Main {
                         "\nСписок тасок на сейчас: " + inMemoryTaskManager.getTaskList().toString());
             }
         }
-        if (!inMemoryTaskManager.getTaskList().containsKey(3)) {
+       // if (inMemoryTaskManager.getTaskList().get(3).getId() != 3 ) {
             Task task = inMemoryTaskManager.createTask("Проверить работу алгоритма формирования идентификатора",
                     "У этой задачи должен быть ID = 4");
             task.setStatus(StatusList.DONE);
             System.out.println("\nСоздана таска ID: " + task.getId() + ", Статус " + task.getStatus() + "\n"
                     + task.getName() + "\n" + task.getDescription() + "\n");
-        }
+       // }
 
         // проверяем работу с эпиками и сабтасками
         Epic epic1 = inMemoryTaskManager.createEpic("Проврить создание эпика и подзадач", "привязать пару " +
@@ -51,9 +51,11 @@ public class Main {
         subTask = inMemoryTaskManager.createSubTask("Подзадача 3 ", "второго эпика", 6);
         inMemoryTaskManager.setSubTaskStatus(subTask, StatusList.DONE);
         subTask = inMemoryTaskManager.createSubTask("Подзадача 2 ", "второго эпика", 6);
-        inMemoryTaskManager.setSubTaskStatus(subTask, StatusList.DONE);
+        inMemoryTaskManager.setSubTaskStatus(subTask, StatusList.IN_PROGRESS);
 
-        for (int i = 0; i <= inMemoryTaskManager.getLastId(); i ++){
+        System.out.println("Проверка метода возврата сабтасок: \n" + inMemoryTaskManager.getSubtaskList().toString());
+
+        for (int i = 0; i <= inMemoryTaskManager.getEpicList().size(); i ++){
             if (inMemoryTaskManager.getEpicById(i) != null) {
                 Epic epic = inMemoryTaskManager.getEpicById(i);
                 System.out.println("\nСоздан эпик ID: " + epic.getId() + ", Статус " + epic.getStatus() + "\n"
@@ -69,7 +71,8 @@ public class Main {
         }
         inMemoryTaskManager.deleteSubTaskById(11);
         System.out.println("Subtasks of 6th epic:  " + inMemoryTaskManager.getAllSubtasksByEpicId(6).toString());
-        for (int i = 0; i <= inMemoryTaskManager.getLastId(); i ++){
+        //for (int i = 0; i <= inMemoryTaskManager.getLastId(); i ++){
+        for (int i = 0; i <= inMemoryTaskManager.getEpicList().size(); i ++){
             if (inMemoryTaskManager.getEpicById(i) != null) {
                 Epic epic = inMemoryTaskManager.getEpicById(i);
                 System.out.println("\nЭпик ID: " + epic.getId() + ", Статус " + epic.getStatus() + "\n"

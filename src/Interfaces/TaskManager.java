@@ -1,6 +1,5 @@
 package Interfaces;
 
-import History.InMemoryHistoryManager;
 import Issues.Epic;
 import Issues.StatusList;
 import Issues.SubTask;
@@ -15,13 +14,10 @@ public interface TaskManager {
     // служебные методы
     public List<Task> getHistory();
 
-    public int getLastId();
-
     // методы для класса Issues.Epic
     public Epic createEpic(String name, String description);
 
     // метод расчета статус эпика, в зависимости от статуса подзадач
-    public void checkStatus(Epic targetEpic);
 
     public List<Epic> getEpicList();
 
@@ -38,7 +34,9 @@ public interface TaskManager {
     // методы Issues.SubTask
     public SubTask createSubTask(String name, String description, int parentEpic);
 
-    public HashMap<Integer, SubTask> getSubtaskList();
+    public HashMap<Integer, SubTask> getSubtasks();
+
+    public List<SubTask> getSubtaskList();
 
     public void setSubTaskStatus(SubTask subTask, StatusList newStatus);
 
@@ -66,5 +64,5 @@ public interface TaskManager {
     public Task getTaskById(int id);
 
     public void deleteTaskById(int id);
-    public HashMap<Integer, Task> getTaskList();
+    public List<Task> getTaskList();
 }
