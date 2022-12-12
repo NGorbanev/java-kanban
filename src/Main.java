@@ -1,5 +1,4 @@
 import Interfaces.TaskManager;
-import Issues.StatusList;
 import Issues.SubTask;
 import Issues.Task;
 import Issues.Epic;
@@ -11,83 +10,64 @@ public class Main {
     public static void main(String[] args) {
         TaskManager inMemoryTaskManager = Managers.getDefault();
 
-
-        // проверяем работу с тасками
-        String[] taskNames = new String[] {"Проверить работу приложения", "Проверить работу методов создания " +
-                "тасок", "Проверить работу методов модификации тасок"};
-        String[] taskDescriptions = new String[]{"Убедиться что оно вообще запускается", "Убедиться что таски " +
-                "создаются как надо", "Проверить модификатора изменения статусов, удаления тасок"};
-        for (int i = 0; i <= 2; i++){
-            Task task = inMemoryTaskManager.createTask(taskNames[i], taskDescriptions[i]);
-            if (i == 0) inMemoryTaskManager.setTaskStatus(task, StatusList.NEW);
-            if (i == 1) inMemoryTaskManager.setTaskStatus(task, StatusList.IN_PROGRESS);
-            if (i == 2) inMemoryTaskManager.setTaskStatus(task, StatusList.DONE);
-            System.out.println("Создана таска ID: " + task.getId() + ", Статус " + task.getStatus() + "\n"
-                    + task.getName() + "\n" + task.getDescription() + "\n");
+        String[] taskNames = new String[] { // массивы для создания тестовых данных
+                "Первая задача",
+                "Вторая задача",
+                "Эпик",
+                "подзадача 1",
+                "подзадача 2"
+        };
+        String[] taskDescriptions = new String[]{
+                "Описание первой таски",
+                "Описание второй таски",
+                "Описание эпика",
+                "Описание первой подзадачи",
+                "Описание второй подзадачи"
+        };
+        int epicId = 0;
+        for (int i = 0; i <= 4; i++){
+            if (i >= 0 && i <= 1){
+                Task task = inMemoryTaskManager.createTask(taskNames[i], taskDescriptions[i]);
+                System.out.println("Создана задача [" +
+                        task.getId() + "] " +
+                        task.getName() + ", " +
+                        task.getClass().toString());
+            }
             if (i == 2) {
-                inMemoryTaskManager.deleteTaskById(task.getId());
-                System.out.println("Последняя задача удалена, значит все работает корректно" +
-                        "\nСписок тасок на сейчас: " + inMemoryTaskManager.getTaskList().toString());
+                Epic task = inMemoryTaskManager.createEpic(taskNames[i], taskDescriptions[i]);
+                System.out.println("Создана задача [" + task.getId() + "] " +
+                        task.getName() +
+                        ", " + task.getClass().toString());
+                epicId = task.getId();
+            }
+            if (i > 2) {
+                SubTask task = inMemoryTaskManager.createSubTask(taskNames[i], taskDescriptions[i], 3);
+                System.out.println("Создана задача [" +
+                        task.getId() + "] " +
+                        task.getName() + ", " +
+                        task.getClass().toString() + "\n");
             }
         }
-       // if (inMemoryTaskManager.getTaskList().get(3).getId() != 3 ) {
-            Task task = inMemoryTaskManager.createTask("Проверить работу алгоритма формирования идентификатора",
-                    "У этой задачи должен быть ID = 4");
-            task.setStatus(StatusList.DONE);
-            System.out.println("\nСоздана таска ID: " + task.getId() + ", Статус " + task.getStatus() + "\n"
-                    + task.getName() + "\n" + task.getDescription() + "\n");
-       // }
+        // проверяем что многократный запрос объектов с записью в историю работает корректно, история перезаписывается
+        for (int i = 1; i <= 42; i++) {
+            System.out.println(inMemoryTaskManager.getEpicById(3).getName().toString());
+            System.out.println(" - "+inMemoryTaskManager.getSubTaskById(4).getName().toString());
+            System.out.println(" - "+inMemoryTaskManager.getSubTaskById(5).getName().toString());
+            System.out.println(inMemoryTaskManager.getTaskById(1).getName().toString());
+            System.out.println(inMemoryTaskManager.getTaskById(2).getName().toString() + "\n");
 
-        // проверяем работу с эпиками и сабтасками
-        Epic epic1 = inMemoryTaskManager.createEpic("Проврить создание эпика и подзадач", "привязать пару " +
-                "подзадач к этому эпику");
-        Epic epic2 = inMemoryTaskManager.createEpic("Проверить работу алгоритма расчета статуса эпика",
-                "привязать три подзадачи в разных статусах и проверить как посчитается статус эпика");
-
-        SubTask subTask = inMemoryTaskManager.createSubTask("Подзадача 1", "первого эпика", 5);
-        subTask = inMemoryTaskManager.createSubTask("Подзадача 2", "первого эпика", 5);
-        subTask = inMemoryTaskManager.createSubTask("Подзадача 1 ", "второго эпика", 6);
-        inMemoryTaskManager.setSubTaskStatus(subTask, StatusList.IN_PROGRESS);
-        subTask = inMemoryTaskManager.createSubTask("Подзадача 3 ", "второго эпика", 6);
-        inMemoryTaskManager.setSubTaskStatus(subTask, StatusList.DONE);
-        subTask = inMemoryTaskManager.createSubTask("Подзадача 2 ", "второго эпика", 6);
-        inMemoryTaskManager.setSubTaskStatus(subTask, StatusList.IN_PROGRESS);
-
-        System.out.println("Проверка метода возврата сабтасок: \n" + inMemoryTaskManager.getSubtaskList().toString());
-
-        for (int i = 0; i <= inMemoryTaskManager.getEpicList().size(); i ++){
-            if (inMemoryTaskManager.getEpicById(i) != null) {
-                Epic epic = inMemoryTaskManager.getEpicById(i);
-                System.out.println("\nСоздан эпик ID: " + epic.getId() + ", Статус " + epic.getStatus() + "\n"
-                        + epic.getName() + "\n" + epic.getDescription());
-                if (epic.getSubTasks() != null){
-                    System.out.println("Список подзадач эпика: ");
-                    for (Integer item: epic.getSubTasks()){
-                        SubTask sTask = inMemoryTaskManager.getSubTaskById(item);
-                        System.out.println(sTask.getId() + " " + sTask.getStatus() + ": " + sTask.getName());
-                    }
-                }
-            }
         }
-        inMemoryTaskManager.deleteSubTaskById(11);
-        System.out.println("Subtasks of 6th epic:  " + inMemoryTaskManager.getAllSubtasksByEpicId(6).toString());
-        //for (int i = 0; i <= inMemoryTaskManager.getLastId(); i ++){
-        for (int i = 0; i <= inMemoryTaskManager.getEpicList().size(); i ++){
-            if (inMemoryTaskManager.getEpicById(i) != null) {
-                Epic epic = inMemoryTaskManager.getEpicById(i);
-                System.out.println("\nЭпик ID: " + epic.getId() + ", Статус " + epic.getStatus() + "\n"
-                        + epic.getName() + "\n" + epic.getDescription());
-                if (epic.getSubTasks() != null){
-                    System.out.println("Список подзадач эпика: ");
-                    for (Integer item: epic.getSubTasks()){
-                        SubTask sTask = inMemoryTaskManager.getSubTaskById(item);
-                        System.out.println(sTask.getId() + " " + sTask.getStatus() + ": " + sTask.getName());
-                    }
-                }
-            }
-        }
-        System.out.println(inMemoryTaskManager.getEpicList().toString());
+        //Для проверки попробовал удаление всех всеми доступными способами. Можно раскомментить методы с удалением тасок рахных типов, проверяя механизм
+        System.out.println(inMemoryTaskManager.getHistory().toString());
+        //inMemoryTaskManager.deleteEpicById(3);
+        //inMemoryTaskManager.deleteAllEpics();
+        //inMemoryTaskManager.deleteTaskById(1);
+        inMemoryTaskManager.deleteAllSubTasks();
+        inMemoryTaskManager.deleteAllTasks();
+        inMemoryTaskManager.deleteAllEpics();
+        //inMemoryTaskManager.deleteTaskById(2);
 
-        System.out.println("\nИстория просмотров: \n" + inMemoryTaskManager.getHistory().toString());
+        //печатаем что осталось
+        System.out.println(inMemoryTaskManager.getHistory().toString());
     }
 }
