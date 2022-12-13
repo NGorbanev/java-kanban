@@ -61,10 +61,10 @@ public class Main {
         System.out.println(inMemoryTaskManager.getHistory().toString());
         //inMemoryTaskManager.deleteEpicById(3);
         //inMemoryTaskManager.deleteAllEpics();
-        //inMemoryTaskManager.deleteTaskById(1);
+        inMemoryTaskManager.deleteTaskById(1);
         inMemoryTaskManager.deleteAllSubTasks();
         inMemoryTaskManager.deleteAllTasks();
-        inMemoryTaskManager.deleteAllEpics();
+        //inMemoryTaskManager.deleteAllEpics();
         //inMemoryTaskManager.deleteTaskById(2);
 
         //печатаем что осталось

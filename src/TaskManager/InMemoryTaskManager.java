@@ -209,8 +209,13 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteAllSubTasks(){ // метод перепсиан для корректного удаления из истории
-        for (SubTask issue: subtaskList.values()){
-            deleteSubTaskById(issue.getId());
+        ArrayList<Integer> subTasksIds = new ArrayList<>();
+        for (SubTask issue: subtaskList.values()) {
+            subTasksIds.add(issue.getId());
+        }
+
+        for (int i = 0; i < subTasksIds.size(); i++){
+            deleteSubTaskById(subTasksIds.get(i));
         }
     }
 
@@ -259,7 +264,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void deleteTaskById(int id){
         history.remove(id);
-        taskList.remove(taskList.get(id));
+        taskList.remove(id);
     }
 
     @Override
