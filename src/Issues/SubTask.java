@@ -25,4 +25,16 @@ public class SubTask extends Task {
     public void setParentEpic(int parentEpic){
         this.epicId = parentEpic;
     }
+
+    @Override
+    public String toString() {
+        String str = getId() + "," +
+                IssueTypes.SUBTASK + "," +
+                getName() + "," +
+                getStatus() + "," +
+                getDescription() + "," +
+                getParentEpicId() + "";
+        return str;
+    }
+
 }

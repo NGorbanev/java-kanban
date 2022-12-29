@@ -30,6 +30,12 @@ public class InMemoryTaskManager implements TaskManager {
         return history.getHistory();
     }
 
+    public void setLastId(int newId){ // метод, нужный для работы загрузчика
+        if (this.id == 0){
+            this.id = newId;
+        }
+    }
+
     private int generateId(){
         id = id + 1;
         return id;
@@ -256,7 +262,7 @@ public class InMemoryTaskManager implements TaskManager {
         Task foundTask = null;
         if (taskList.containsKey(id)) {
             foundTask = taskList.get(id);
-            history.add(taskList.get(id));
+            history.add(foundTask);
         }
         return foundTask;
     }

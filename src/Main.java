@@ -1,4 +1,5 @@
 import Interfaces.TaskManager;
+import Issues.StatusList;
 import Issues.SubTask;
 import Issues.Task;
 import Issues.Epic;
@@ -8,66 +9,34 @@ import Utils.Managers;
 public class Main {
 
     public static void main(String[] args) {
-        TaskManager inMemoryTaskManager = Managers.getDefault();
+        /** в задании сказано сделать метод main прямо в новом таскменеджере
+         * Но при этом, чтобы все исполнялось, нужно переводитьвсе методы к Static. Кажется, так не было задумано..
+         * Поэтому я сделал тут замену менеджера, добавив второй менеджер в класс Managers
+         * Проверка осуществлена как и требуется в задании - создано несколько задач разного типа, с обращениями к ним
+         * и проверкой загрузки самих тасок, апдейта статуса и истории
+         */
 
-        String[] taskNames = new String[] { // массивы для создания тестовых данных
-                "Первая задача",
-                "Вторая задача",
-                "Эпик",
-                "подзадача 1",
-                "подзадача 2"
-        };
-        String[] taskDescriptions = new String[]{
-                "Описание первой таски",
-                "Описание второй таски",
-                "Описание эпика",
-                "Описание первой подзадачи",
-                "Описание второй подзадачи"
-        };
-        int epicId = 0;
-        for (int i = 0; i <= 4; i++){
-            if (i >= 0 && i <= 1){
-                Task task = inMemoryTaskManager.createTask(taskNames[i], taskDescriptions[i]);
-                System.out.println("Создана задача [" +
-                        task.getId() + "] " +
-                        task.getName() + ", " +
-                        task.getClass().toString());
-            }
-            if (i == 2) {
-                Epic task = inMemoryTaskManager.createEpic(taskNames[i], taskDescriptions[i]);
-                System.out.println("Создана задача [" + task.getId() + "] " +
-                        task.getName() +
-                        ", " + task.getClass().toString());
-                epicId = task.getId();
-            }
-            if (i > 2) {
-                SubTask task = inMemoryTaskManager.createSubTask(taskNames[i], taskDescriptions[i], 3);
-                System.out.println("Создана задача [" +
-                        task.getId() + "] " +
-                        task.getName() + ", " +
-                        task.getClass().toString() + "\n");
-            }
+        //TaskManager taskManager = Managers.getDefault();
+        TaskManager taskManager = Managers.getFileBaked(
+                "./src/Data/SavedData.csv");
+
+        System.out.println("Загружена история: ");
+        System.out.println(taskManager.getHistory());
+        System.out.println("\n");
+
+        taskManager.createEpic("Тестовый эпик", "Описание тестового эпика");
+        taskManager.createSubTask("Тестовая сабтаска","Заодно и проверим как у эпика статус меняется", 2);
+        taskManager.setSubTaskStatus(taskManager.getSubTaskById(3), StatusList.DONE);
+
+        System.out.println("Что попало из файла в программу: ");
+        for (Task issue: taskManager.getEpicList()){
+            System.out.println(issue.toString());
         }
-        // проверяем что многократный запрос объектов с записью в историю работает корректно, история перезаписывается
-        for (int i = 1; i <= 42; i++) {
-            System.out.println(inMemoryTaskManager.getEpicById(3).getName().toString());
-            System.out.println(" - "+inMemoryTaskManager.getSubTaskById(4).getName().toString());
-            System.out.println(" - "+inMemoryTaskManager.getSubTaskById(5).getName().toString());
-            System.out.println(inMemoryTaskManager.getTaskById(1).getName().toString());
-            System.out.println(inMemoryTaskManager.getTaskById(2).getName().toString() + "\n");
-
+        for (Task issue: taskManager.getTaskList()){
+            System.out.println(issue.toString());
         }
-        //Для проверки попробовал удаление всех всеми доступными способами. Можно раскомментить методы с удалением тасок рахных типов, проверяя механизм
-        System.out.println(inMemoryTaskManager.getHistory().toString());
-        //inMemoryTaskManager.deleteEpicById(3);
-        //inMemoryTaskManager.deleteAllEpics();
-        inMemoryTaskManager.deleteTaskById(1);
-        inMemoryTaskManager.deleteAllSubTasks();
-        inMemoryTaskManager.deleteAllTasks();
-        //inMemoryTaskManager.deleteAllEpics();
-        //inMemoryTaskManager.deleteTaskById(2);
-
-        //печатаем что осталось
-        System.out.println(inMemoryTaskManager.getHistory().toString());
+        for (Task issue: taskManager.getSubtaskList()){
+            System.out.println(issue.toString());
+        }
     }
 }

@@ -42,4 +42,16 @@ public class Epic extends Task {
         ArrayList<Integer> list = subTasksList;
         return list;
     }
+
+    @Override
+    public String toString() {
+        String str = getId() + "," +
+                IssueTypes.EPIC + "," +
+                getName() + "," +
+                getStatus() + "," +
+                getDescription() + ", ";
+        return str;
+    }
+
+
 }

@@ -51,8 +51,6 @@ public class InMemoryHistoryManager implements HistoryManager {
             else {
                 historyMap.put(issue.getId(), linkLast(issue)); // после всех проверок добавляем запись в историю, если надо
             }
-
-
         }
 
         public void insert(Task issue){ // хотя метод больше и не нужен, оставлю его на будущее, на всякий случай
@@ -88,7 +86,7 @@ public class InMemoryHistoryManager implements HistoryManager {
             return newTail; // для проверки, ну и на всякий случай, если надо будет получить "ок" о том, что объект добавлен
         }
 
-        public ArrayList<T> getTasks(){ // по заданию надо переложть в ArrayList. Перекладываем
+        public ArrayList<T> getTasks(){ // По заданию надо переложить в ArrayList. Перекладываем
             ArrayList<T> tList = new ArrayList<>();
             for (Node x = head; x != null; x = x.next){
                 tList.add((T) x.data);
@@ -108,7 +106,7 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     @Override
     public List<Task> getHistory() {
-        return linkedList.getTasks(); // по заданию надо переложить в ArrayList. Оставил перекладчик в классе, чтобы если надо будет выдавать в другом формаате - проще было менять
+        return linkedList.getTasks(); // по заданию надо переложить в ArrayList. Оставил перекладчик в классе, чтобы если надо будет выдавать в другом формате - проще было менять
     }
 
 

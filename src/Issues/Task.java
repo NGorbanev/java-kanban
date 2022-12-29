@@ -50,7 +50,6 @@ public class Task {
     }
 
     public StatusList getStatus() {
-        //return statusList[status];
         return status;
     }
 
@@ -62,4 +61,13 @@ public class Task {
         return StatusList.values();
     }
 
+    @Override
+    public String toString() {
+        String str = getId() + "," +
+                IssueTypes.TASK + "," +
+                getName() + "," +
+                getStatus() + "," +
+                getDescription() + ", ";
+        return str;
+    }
 }
