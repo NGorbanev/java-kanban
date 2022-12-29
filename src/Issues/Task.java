@@ -63,11 +63,11 @@ public class Task {
 
     @Override
     public String toString() {
-        String str = getId() + "," +
-                IssueTypes.TASK + "," +
-                getName() + "," +
-                getStatus() + "," +
-                getDescription() + ", ";
+        String str = "ID=" + getId() + ", " +
+                "TYPE=" + IssueTypes.TASK + "," +
+                "STATUS=" + getStatus() + ", " +
+                "NAME=" + getName() + ", " +
+                "DESCRIPTION=" + getDescription();
         return str;
     }
 }

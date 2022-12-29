@@ -28,12 +28,12 @@ public class SubTask extends Task {
 
     @Override
     public String toString() {
-        String str = getId() + "," +
-                IssueTypes.SUBTASK + "," +
-                getName() + "," +
-                getStatus() + "," +
-                getDescription() + "," +
-                getParentEpicId() + "";
+        String str = "ID=" + getId() + ", " +
+                "TYPE=" + IssueTypes.SUBTASK + ", " +
+                "STATUS = " + getStatus() + ", " +
+                "PARENT=" + getParentEpicId() + ", " +
+                "NAME=" + getName() + ", " +
+                "DESCRIPTION=" + getDescription();
         return str;
     }
 
