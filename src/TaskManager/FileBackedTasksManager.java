@@ -18,16 +18,20 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     // конструктор
     public FileBackedTasksManager(String pathToFile){
         this.path = Paths.get(pathToFile);
-        file = new File(path.toString());
+        this.file = new File(path.toString());
         loadFromFile(file);
+    }
+
+    public FileBackedTasksManager(){
+
     }
 
     public static void main(String[] args) {
         FileBackedTasksManager fbm = new FileBackedTasksManager("./src/Data/test.csv");
-        fbm.createEpic("TestEpic", "Desc");
-        fbm.createSubTask("TestSubtask", "Descr", 1);
-        fbm.createTask("Test task", "Test task desscr");
-        fbm.createTask("Test task2", "2d Test task desscr");
+        fbm.createEpic("TestEpic", "Desc test.csv");
+        fbm.createSubTask("TestSubtask", "Descr test.csv", 1);
+        fbm.createTask("Test task", "Test task desscr test.csv");
+        fbm.createTask("Test task2", "2d Test task desscr test.csv");
 
         for (int i = 1; i <= 42; i++){
             fbm.getEpicById(1);
@@ -35,15 +39,31 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
             fbm.getTaskById(3);
         }
 
-        FileBackedTasksManager fbmCheck = new FileBackedTasksManager("./src/Data/test.csv");
-        System.out.println("Загружено из файла: ");
-        for (Task issue: fbmCheck.getEpicList()){
+        System.out.println("\n");
+
+        fbm.loadFromFile(new File("./src/Data/SavedData.csv"));
+        System.out.println("Загружено из файла SavedData.csv: ");
+        for (Task issue: fbm.getEpicList()){
             System.out.println(issue.toString());
         }
-        for (Task issue: fbmCheck.getTaskList()){
+        for (Task issue: fbm.getTaskList()){
             System.out.println(issue.toString());
         }
-        for (Task issue: fbmCheck.getSubtaskList()){
+        for (Task issue: fbm.getSubtaskList()){
+            System.out.println(issue.toString());
+        }
+
+        System.out.println("\n");
+
+        fbm.loadFromFile(new File("./src/Data/test.csv"));
+        System.out.println("Загружено из файла test.csv: ");
+        for (Task issue: fbm.getEpicList()){
+            System.out.println(issue.toString());
+        }
+        for (Task issue: fbm.getTaskList()){
+            System.out.println(issue.toString());
+        }
+        for (Task issue: fbm.getSubtaskList()){
             System.out.println(issue.toString());
         }
 
@@ -52,20 +72,20 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     // свои методы
     // сохранение в файл
     public void save() {
-        try (FileWriter fw = new FileWriter(path.toString()); BufferedWriter bw = new BufferedWriter(fw)) {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(path.toString()))) {
             bw.write("id,type,name,status,description,parentEpic\n");
 
             // сохраняем эпики
             for (Task epic: epicList.values()){
-                bw.write(converter.convertToString(epic) + "\n"); // переписано в соответствии с рекомендациями на ревью
+                bw.write(converter.convertToString(epic) + System.lineSeparator()); // переписано в соответствии с рекомендациями на ревью
             }
             // сохраняем сабтаски
             for (Task subTask: subtaskList.values()){
-                bw.write(converter.convertToString(subTask) + "\n"); // переписано в соответствии с рекомендациями на ревью
+                bw.write(converter.convertToString(subTask) + System.lineSeparator()); // переписано в соответствии с рекомендациями на ревью
             }
             // сохраняем таски
             for (Task task: taskList.values()){
-                bw.write(converter.convertToString(task) + "\n"); // переписано в соответствии с рекомендациями на ревью
+                bw.write(converter.convertToString(task) + System.lineSeparator()); // переписано в соответствии с рекомендациями на ревью
             }
             //сохраняем историю
             bw.write("\n");
@@ -78,15 +98,29 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     public void loadFromFile(File file) {
-        String[] data;// вынесено из try
+
+        // обновляем данные файла
+        this.file = file;
+        this.path = file.toPath();
+
+        // чистим hashMap с данными для записи новых данных из файла
+        taskList.clear();
+        epicList.clear();
+        subtaskList.clear();
+
+        String[] data = new String[0];// вынесено из try
         try {
+
+            // оставил именно такую реализацию, потому что нужно сначала считать задачи до пустой строки, потом ее пропустить и взять строку с историей
+            // так кажется проще реализовать перебор. Исправил разделитель в сохранении
             data = Files.readString(Path.of(file.toURI())).split(System.lineSeparator());
             if (data == null || data.length == 0){ // если файл пуст - информируем в консоли и больше не пытаемся ничего из него получить
-                System.out.println("Файл с данными для загрузки пустой\n");
-                return;
+                throw new ManagerSaveException("Файл с данными для загрузки пустой");
             }
-        } catch (IOException e) { // если файл не открылся или что-то с ним не то, ничего не грузим из него, информируем об ошибке и идем дальше
-            throw new ManagerSaveException(e,"Невозможно прочитать файл с данными для загрузки");
+        } catch (IOException e) {
+            new File(file.getPath()); // если файла нет - создаем
+        } catch (ManagerSaveException e){
+            return; // пропускаем дальнейшие попытки загрузки данных, потому что файл пустой
         }
         int lastId = 0; // нужна для того, чтобы после всех загрузок выставить корректный id для новых issue
         for (int i = 1; i < data.length; i++){
@@ -118,8 +152,6 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                         taskList.put(index, task);
                         break;
                 }
-
-
             } else {
                 break; // если файл пустой - не грузим из него ничего
             }

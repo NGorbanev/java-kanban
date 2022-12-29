@@ -1,16 +1,10 @@
 import Interfaces.TaskManager;
-import Issues.Task
+import Issues.Task;
 import Utils.Managers;
 
 public class Main {
 
     public static void main(String[] args) {
-        /** в задании сказано сделать метод main прямо в новом таскменеджере
-         * Но при этом, чтобы все исполнялось, нужно переводитьвсе методы к Static. Кажется, так не было задумано..
-         * Поэтому я сделал тут замену менеджера, добавив второй менеджер в класс Managers
-         * Проверка осуществлена как и требуется в задании - создано несколько задач разного типа, с обращениями к ним
-         * и проверкой загрузки самих тасок, апдейта статуса и истории
-         */
 
         //TaskManager taskManager = Managers.getDefault();
         TaskManager taskManager = Managers.getFileBaked(

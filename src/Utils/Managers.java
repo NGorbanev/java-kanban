@@ -17,6 +17,10 @@ public class Managers {
           return new FileBackedTasksManager(fileAddress);
       }
 
+      public static TaskManager getFileBakedFree(){
+          return new FileBackedTasksManager();
+      }
+
       // менеджеры истории
       public static HistoryManager getDefaultHistoryManager(){
           return new InMemoryHistoryManager();
