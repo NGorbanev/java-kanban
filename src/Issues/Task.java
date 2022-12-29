@@ -7,9 +7,6 @@ public class Task {
     //private int status = 0;
     private StatusList status = StatusList.NEW;
     private int id;
-    //public static String[] statusList = new String[] {"NEW", "IN_PROGRESS", "DONE"};
-
-
 
     public Task(String name, String description, StatusList status, int id){
         this.name = name;

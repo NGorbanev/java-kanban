@@ -200,13 +200,6 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         save();
         return epic;
     }
-/* Тут сохранение не нужно, потому что сохранение вызывается в тригерующих его методах
-    @Override
-    public void checkStatus(Epic targetEpic){
-        super.checkStatus(targetEpic);
-        save();
-    }
-*/
     @Override
     public void deleteAllEpics(){
         super.deleteAllEpics();
