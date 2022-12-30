@@ -119,8 +119,6 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
             }
         } catch (IOException e) {
             new File(file.getPath()); // если файла нет - создаем
-        } catch (ManagerSaveException e){
-            return; // пропускаем дальнейшие попытки загрузки данных, потому что файл пустой
         }
         int lastId = 0; // нужна для того, чтобы после всех загрузок выставить корректный id для новых issue
         for (int i = 1; i < data.length; i++){
@@ -138,17 +136,15 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                         break;
                     case "SUBTASK":
                         int parentEpicId = Integer.valueOf(line[5]);
-                        Epic parentEpic = getEpicById(parentEpicId);
+                        Epic parentEpic = epicList.get(parentEpicId);
                         SubTask subTask = new SubTask(line[2], line[4], status, parentEpicId, index);
                         parentEpic.addSubTaskToEpic(subTask); // прописали сабтаску в эпике
                         subTask.setParentEpic(parentEpic.getId()); // прописали эпик в сабтаске
                         subtaskList.put(index, subTask); // апдейт сабтаски в hashmap
-                        epicList.put(parentEpicId, getEpicById(parentEpicId)); // апдейт эпика в hashmap
-                        checkStatus(parentEpic);
+                        epicList.put(parentEpicId, parentEpic); // апдейт эпика в hashmap
                         break;
                     case "TASK":
                         Task task = new Task(line[2], line[4], status, index); // создали таску
-                        //updateTask(task); // залили ее в хэшмап
                         taskList.put(index, task);
                         break;
                 }
