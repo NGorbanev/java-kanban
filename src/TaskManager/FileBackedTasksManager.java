@@ -77,15 +77,15 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 
             // сохраняем эпики
             for (Task epic: epicList.values()){
-                bw.write(converter.convertToString(epic) + System.lineSeparator()); // переписано в соответствии с рекомендациями на ревью
+                bw.write(converter.convertToString(epic) + System.lineSeparator());
             }
             // сохраняем сабтаски
             for (Task subTask: subtaskList.values()){
-                bw.write(converter.convertToString(subTask) + System.lineSeparator()); // переписано в соответствии с рекомендациями на ревью
+                bw.write(converter.convertToString(subTask) + System.lineSeparator());
             }
             // сохраняем таски
             for (Task task: taskList.values()){
-                bw.write(converter.convertToString(task) + System.lineSeparator()); // переписано в соответствии с рекомендациями на ревью
+                bw.write(converter.convertToString(task) + System.lineSeparator());
             }
             //сохраняем историю
             bw.write("\n");

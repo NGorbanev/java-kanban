@@ -17,12 +17,6 @@ public class Main {
         }
         System.out.println("\n");
 
-       // taskManager.createEpic("Тестовый эпик", "Описание тестового эпика");
-       // taskManager.createSubTask("Тестовая сабтаска","Описание тестовой сабтаски", 1);
-       // taskManager.createSubTask("Тестовая сабтаска","Заодно и проверим как у эпика статус меняется", 1);
-       // taskManager.setSubTaskStatus(taskManager.getSubTaskById(2), StatusList.DONE);
-       // taskManager.createTask("Тестовая задача", "Описание тестовой задачи");
-
         System.out.println("Что попало из файла в программу: ");
         for (Task issue: taskManager.getEpicList()){
             System.out.println(issue.toString());
