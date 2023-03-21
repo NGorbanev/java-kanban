@@ -1,13 +1,29 @@
 package Issues;
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class Epic extends Task {
     private ArrayList<Integer> subTasksList = new ArrayList<>();
 
+    // Epic duration comes from Task class. Duration calculation is implemented at InMemoryTaskManager with calculateEpicDuration method
+
+    // bunch of constructors for all possible needed cases
     public Epic(String name, String description, StatusList status, int id){
         super(name, description, status, id);
     }
+    public Epic(String name, String description, StatusList status, int id, LocalDateTime dateTime, int dur){
+        super(name, description,status,id,dateTime,dur);
+    }
+    public Epic(String name, String description, StatusList status, int id, Long UTCDate, int dur){
+        super(name,description,status,id,UTCDate,dur);
+    }
+    public Epic (String name, String description, StatusList status, int id, Instant startTime, int dur){
+        super(name, description, status, id, startTime, dur);
+    }
     public Epic(){}
+
+
 
     public void setName(String newName){
         super.setName(newName);
@@ -52,6 +68,6 @@ public class Epic extends Task {
                 "DESCRIPTION=" + getDescription();
         return str;
     }
-
+    // методы работы с датами эпика
 
 }

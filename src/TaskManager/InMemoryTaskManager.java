@@ -7,10 +7,12 @@ import Issues.StatusList;
 import Issues.SubTask;
 import Issues.Task;
 import Utils.Managers;
+import com.sun.source.tree.Tree;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.*;
+
 
 
 public class InMemoryTaskManager implements TaskManager {
@@ -41,12 +43,61 @@ public class InMemoryTaskManager implements TaskManager {
         return id;
     }
 
+    public void checkTimeline() {
+        // todo update method for writing correct data to the base
+        TreeSet<Task> timeLine = getPrioritizedTasks();
+        Iterator<Task> iterator = timeLine.iterator();
+        Instant timeT = timeLine.first().getEndTime();
+        while (iterator.hasNext()) {
+            Task t = iterator.next();
+            if (timeT.isAfter(t.getStartTime())) {
+                t.setStartTime(timeT);
+                timeT = t.getEndTime();
+            }
+        }
+    }
+
+    public TreeSet<Task> getPrioritizedTasks(){
+        TreeSet<Task> sortedIssues = new TreeSet<>(new Comparator<Task>() {
+            @Override
+            public int compare(Task o1, Task o2) {
+                if (o1.getStartTime() == null && o2.getStartTime() != null) return -1;
+                else if (o1.getStartTime() != null && o2.getStartTime() == null) return 1;
+                else if (o1.getStartTime() == null && o2.getStartTime() == null) return 0;
+                return o1.getStartTime().compareTo(o2.getStartTime());
+            }
+        });
+        sortedIssues.addAll(taskList.values());
+        sortedIssues.addAll(subtaskList.values());
+        sortedIssues.addAll(epicList.values());
+
+        return sortedIssues;
+    }
+
     // методы для класса Issues.Epic
     @Override
     public Epic createEpic(String name, String description){
         Epic epic = new Epic(name, description, StatusList.NEW, generateId());
         updateEpic(epic);
         return epic;
+    }
+
+    // метод расчета длительности эпика
+    public void calculateEpicDuration(Epic epic){
+        ArrayList<Integer> subTaskList = epic.getSubTasks();
+        Instant firstSubTaskStartTime = Instant.ofEpochMilli(0);
+        Long stDurations = 0L;
+        for (int i: subTaskList){
+            if (this.subtaskList.get(i).getDuration() == null) this.subtaskList.get(i).setDuration(0);
+            stDurations = stDurations + this.subtaskList.get(i).getDuration();
+            if (this.subtaskList.get(i).getStartTime() == null)
+                this.subtaskList.get(i).setStartTime(Instant.ofEpochMilli(0));
+            if (firstSubTaskStartTime.isBefore(this.subtaskList.get(i).getStartTime())){
+                firstSubTaskStartTime = this.subtaskList.get(i).getStartTime();
+            }
+        }
+        epicList.get(epic.getId()).setStartTime(firstSubTaskStartTime);
+        epicList.get(epic.getId()).setDuration((int) (stDurations/60_000));
     }
 
     // метод расчета статус эпика, в зависимости от статуса подзадач
@@ -139,6 +190,9 @@ public class InMemoryTaskManager implements TaskManager {
         epic.addSubTaskToEpic(subTask);
         subTask.setParentEpic(parentEpic);
         subtaskList.put(subTask.getId(), subTask);
+        calculateEpicDuration(epic);
+        checkStatus(epic);
+        //updateEpic(epic);
         return subTask;
     }
 
@@ -157,11 +211,11 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void setSubTaskStatus(SubTask subTask, StatusList newStatus){
-        boolean statusFound = false;
+        //boolean statusFound = false;
         StatusList[] statusList = subTask.getStatusList();
         for (int i = 0; i <  statusList.length; i++) {
             if (newStatus.equals(statusList[i])){
-                statusFound = true;
+                //statusFound = true;
                 subTask.setStatus(statusList[i]);
                 updateSubTask(subTask);
             }
@@ -175,7 +229,7 @@ public class InMemoryTaskManager implements TaskManager {
         newChildSubtask.setParentEpic(epic.getId());
         updateSubTask(newChildSubtask);
     }
-
+/*
     @Override
     public void submitSubTask(SubTask issue){
         int parent = issue.getParentEpicId();
@@ -185,7 +239,7 @@ public class InMemoryTaskManager implements TaskManager {
         checkStatus(epic);
         updateEpic(epic);
     }
-
+*/
     @Override
     public SubTask getSubTaskById(int issueId){
         SubTask subTask = null;
@@ -225,7 +279,7 @@ public class InMemoryTaskManager implements TaskManager {
         }
     }
 
-    // матоды Issues.Task
+    // методы Issues.Task
     @Override
     public Task createTask(String name, String description){
         Task task = new Task(name, description, StatusList.NEW, generateId());
@@ -241,7 +295,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void setTaskStatus(Task task, StatusList newStatus){
         StatusList[] statusList = task.getStatusList();
-        for (int i = 0; i <  statusList.length; i++) {
+        for (int i = 0; i < statusList.length; i++) {
             if (newStatus.equals(statusList[i])){
                 task.setStatus(statusList[i]);
                 updateTask(task);

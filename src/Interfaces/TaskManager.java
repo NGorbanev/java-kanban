@@ -42,7 +42,7 @@ public interface TaskManager {
 
     public void linkSubTask(Epic epic, SubTask subTask);
 
-    public void submitSubTask(SubTask issue);
+  //  public void submitSubTask(SubTask issue);
 
     public SubTask getSubTaskById(int issueId);
 

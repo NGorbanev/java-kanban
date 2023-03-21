@@ -1,13 +1,54 @@
 package Issues;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+
 public class SubTask extends Task {
 
     private int epicId;
 
-    public SubTask(String name, String description, StatusList status, int parentEpicId, int id){
+    public SubTask(
+            String name,
+            String description,
+            StatusList status,
+            int parentEpicId,
+            int id){
         super(name, description, status, id);
         this.epicId = parentEpicId;
     }
+
+    public SubTask(String name,
+                   String description,
+                   StatusList status,
+                   int parentEpicId,
+                   int id,
+                   LocalDateTime dateTime,
+                   int dur){
+        super(name, description, status, id, dateTime, dur);
+        this.epicId = parentEpicId;
+    }
+    public SubTask(String name,
+                   String description,
+                   StatusList status,
+                   int parentEpicId,
+                   int id,
+                   Long UTCDate,
+                   int dur){
+        super(name, description, status, id, UTCDate, dur);
+        this.epicId = parentEpicId;
+    }
+
+    public SubTask(String name,
+                   String description,
+                   StatusList status,
+                   int parentEpicId,
+                   int id,
+                   Instant startTime,
+                   int dur){
+        super(name, description, status, id, startTime, dur);
+        this.epicId = parentEpicId;
+    }
+
 
     @Override
     public StatusList getStatus() {
@@ -36,5 +77,4 @@ public class SubTask extends Task {
                 "DESCRIPTION=" + getDescription();
         return str;
     }
-
 }

@@ -42,39 +42,34 @@ public class InMemoryHistoryManager implements HistoryManager {
             return historyMap.size();
         }
 
-        public void add(Task issue){
-           // перенес логику добавления в конец и удаления повтора сюда
+        public void add(Task issue) {
+            // перенес логику добавления в конец и удаления повтора сюда
             if (historyMap.containsKey(issue.getId())) {
                 remove(issue.getId());
                 historyMap.put(issue.getId(), linkLast(issue));
-            }
-            else {
+            } else {
                 historyMap.put(issue.getId(), linkLast(issue)); // после всех проверок добавляем запись в историю, если надо
             }
         }
-
-        public void insert(Task issue){ // хотя метод больше и не нужен, оставлю его на будущее, на всякий случай
-            Node insertedNode = historyMap.get(issue.getId());
-            insertedNode.data = issue;
-            historyMap.put(issue.getId(),insertedNode);
-        }
-
         public void remove(int issueId){
-            removeNode(historyMap.remove(issueId));
+            Node node = historyMap.get(issueId);
+            removeNode(node);
         }
 
         public void removeNode(Node node){
-            if (node.prev == null){
-                head = node.next;
-            } else {
-                node.prev.next = node.next;
+            if (node != null) {
+                if (node.prev == null) {
+                    head = node.next;
+                } else {
+                    node.prev.next = node.next;
+                }
+                if (node.next == null) {
+                    tail = node.prev;
+                } else {
+                    node.next.prev = node.prev;
+                }
+                node = null;
             }
-            if (node.next == null){
-                tail = node.prev;
-            } else {
-                node.next.prev = node.prev;
-            }
-            node = null;
         }
 
         public Node linkLast(Task item){
