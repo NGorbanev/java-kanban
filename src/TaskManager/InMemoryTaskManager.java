@@ -7,32 +7,26 @@ import Issues.StatusList;
 import Issues.SubTask;
 import Issues.Task;
 import Utils.Managers;
-import com.sun.source.tree.Tree;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 
-
-
 public class InMemoryTaskManager implements TaskManager {
 
-    // собственные поля и хранение данных
-
+    // own fields and data storage
     HashMap<Integer, Epic> epicList = new HashMap<>();
     HashMap<Integer, SubTask> subtaskList = new HashMap<>();
     HashMap<Integer, Task> taskList = new HashMap<>();
     HistoryManager history = new Managers().getDefaultHistoryManager();
     private int id;
 
-    // служебные методы
-
+    // service methods
     @Override
     public List<Task> getHistory(){
         return history.getHistory();
     }
 
-    public void setLastId(int newId){ // метод, нужный для работы загрузчика
+    public void setLastId(int newId){
         if (this.id == 0){
             this.id = newId;
         }
@@ -44,7 +38,6 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     public void checkTimeline() {
-        // todo update method for writing correct data to the base
         TreeSet<Task> timeLine = getPrioritizedTasks();
         Iterator<Task> iterator = timeLine.iterator();
         Instant timeT = timeLine.first().getEndTime();
@@ -57,6 +50,7 @@ public class InMemoryTaskManager implements TaskManager {
         }
     }
 
+    // new method for receiving tasks ordered by priority (based on StartTime)
     public TreeSet<Task> getPrioritizedTasks(){
         TreeSet<Task> sortedIssues = new TreeSet<>(new Comparator<Task>() {
             @Override
@@ -74,7 +68,7 @@ public class InMemoryTaskManager implements TaskManager {
         return sortedIssues;
     }
 
-    // методы для класса Issues.Epic
+    // methods for Issues.Epic class
     @Override
     public Epic createEpic(String name, String description){
         Epic epic = new Epic(name, description, StatusList.NEW, generateId());
@@ -82,7 +76,7 @@ public class InMemoryTaskManager implements TaskManager {
         return epic;
     }
 
-    // метод расчета длительности эпика
+    // epic duration calculation method
     public void calculateEpicDuration(Epic epic){
         ArrayList<Integer> subTaskList = epic.getSubTasks();
         Instant firstSubTaskStartTime = Instant.ofEpochMilli(0);
@@ -100,7 +94,7 @@ public class InMemoryTaskManager implements TaskManager {
         epicList.get(epic.getId()).setDuration((int) (stDurations/60_000));
     }
 
-    // метод расчета статус эпика, в зависимости от статуса подзадач
+    // method of epic status calculation in dependency of subtasks statuses
     public void checkStatus(Epic targetEpic){
         Epic epic = targetEpic;
         ArrayList<Integer> subTasksList = targetEpic.getSubTasks();
@@ -134,7 +128,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void deleteAllEpics(){ // метод переписан, чтобы корректно взаиимодействовать с историей
+    public void deleteAllEpics(){
         for (Epic epic: epicList.values()){
             deleteEpicById(epic.getId());
         }
@@ -155,7 +149,7 @@ public class InMemoryTaskManager implements TaskManager {
     public void deleteEpicById(int epicId){
         Epic epic = getEpicById(epicId);
         int subTaskCount = epic.getSubTasks().size();
-        for(int i = subTaskCount-1; i >= 0; i--){  // переписан метод удаление сабтасок, потому что старый работал не корректно
+        for(int i = subTaskCount-1; i >= 0; i--){
             deleteSubTaskById(epic.getSubTasks().get(i));
         }
         history.remove(epicId);
@@ -182,7 +176,7 @@ public class InMemoryTaskManager implements TaskManager {
         epicList.put(issue.getId(), issue);
     }
 
-    // методы Issues.SubTask
+    // methods for Issues.SubTask class
     @Override
     public SubTask createSubTask(String name, String description, int parentEpic){
         Epic epic = getEpicById(parentEpic);
@@ -192,7 +186,6 @@ public class InMemoryTaskManager implements TaskManager {
         subtaskList.put(subTask.getId(), subTask);
         calculateEpicDuration(epic);
         checkStatus(epic);
-        //updateEpic(epic);
         return subTask;
     }
 
@@ -215,7 +208,6 @@ public class InMemoryTaskManager implements TaskManager {
         StatusList[] statusList = subTask.getStatusList();
         for (int i = 0; i <  statusList.length; i++) {
             if (newStatus.equals(statusList[i])){
-                //statusFound = true;
                 subTask.setStatus(statusList[i]);
                 updateSubTask(subTask);
             }
@@ -229,17 +221,7 @@ public class InMemoryTaskManager implements TaskManager {
         newChildSubtask.setParentEpic(epic.getId());
         updateSubTask(newChildSubtask);
     }
-/*
-    @Override
-    public void submitSubTask(SubTask issue){
-        int parent = issue.getParentEpicId();
-        subtaskList.put(issue.getId(), issue); // регистрируем сабтаску в базе
-        Epic epic = epicList.get(parent);
-        linkSubTask(epic, issue);
-        checkStatus(epic);
-        updateEpic(epic);
-    }
-*/
+
     @Override
     public SubTask getSubTaskById(int issueId){
         SubTask subTask = null;
@@ -263,12 +245,12 @@ public class InMemoryTaskManager implements TaskManager {
         epic.unlinkSubtask(id);
         checkStatus(epic);
         updateEpic(epic);
-        history.remove(id); // добавлено для удаления сабтаски из истории
+        history.remove(id);
         subtaskList.remove(id);
     }
 
     @Override
-    public void deleteAllSubTasks(){ // метод перепсиан для корректного удаления из истории
+    public void deleteAllSubTasks(){
         ArrayList<Integer> subTasksIds = new ArrayList<>();
         for (SubTask issue: subtaskList.values()) {
             subTasksIds.add(issue.getId());
@@ -279,7 +261,7 @@ public class InMemoryTaskManager implements TaskManager {
         }
     }
 
-    // методы Issues.Task
+    // methods for Issues.Task class
     @Override
     public Task createTask(String name, String description){
         Task task = new Task(name, description, StatusList.NEW, generateId());
@@ -305,7 +287,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void deleteAllTasks(){ // метод переписан для корректного удаления из истории
+    public void deleteAllTasks(){
         for (Task issue: taskList.values()){
             deleteTaskById(issue.getId());
         }

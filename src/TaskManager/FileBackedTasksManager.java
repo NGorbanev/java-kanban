@@ -8,95 +8,40 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.util.TreeSet;
 
 public class FileBackedTasksManager extends InMemoryTaskManager {
-    // переменная для пути к файлу с сохранениями
+    // variable for path to file with data
     Path path;
     File file;
 
-    Converter converter = new Converter(); // вспомогательный класс для конвертации issue в строку
+    Converter converter = new Converter(); // helping class for converting issue to string
 
-    // конструктор
+    // constructor
     public FileBackedTasksManager(String pathToFile){
         this.path = Paths.get(pathToFile);
         this.file = new File(path.toString());
         loadFromFile(file);
     }
 
-    public FileBackedTasksManager(){
-
-    }
-
-    public static void main(String[] args) {
-        FileBackedTasksManager fbm = new FileBackedTasksManager("./src/Data/test.csv");
-/*        fbm.createEpic("TestEpic", "Desc test.csv");
-        fbm.createSubTask("TestSubtask", "Descr test.csv", 1);
-        fbm.createTask("Test task", "Test task desscr test.csv");
-        fbm.createTask("Test task2", "2d Test task desscr test.csv");
-
-        for (int i = 1; i <= 42; i++){
-            fbm.getEpicById(1);
-            fbm.getSubTaskById(2);
-            fbm.getTaskById(3);
-        }
-*/
-        System.out.println("\n");
-
-        fbm.loadFromFile(new File("./src/Data/SavedData.csv"));
-        fbm.getPrioritizedTasks().forEach(s -> {
-            System.out.println(s.toString());
-        });
-
-        fbm.checkTimeline();
-        System.out.println("Загружено из файла SavedData.csv: ");
-
-        for (Task issue: fbm.getEpicList()){
-            System.out.println(issue.toString() + " Start time: " + issue.getStartTime());
-        }
-        for (Task issue: fbm.getTaskList()){
-            System.out.println(issue.toString() + " Start time: " + issue.getStartTime());
-        }
-        for (Task issue: fbm.getSubtaskList()){
-            System.out.println(issue.toString() + " Start time: " + issue.getStartTime());
-        }
-
-        System.out.println("\n");
-
-        fbm.loadFromFile(new File("./src/Data/test.csv"));
-        System.out.println("Загружено из файла test.csv: ");
-        for (Task issue: fbm.getEpicList()){
-            System.out.println(issue.toString());
-        }
-        for (Task issue: fbm.getTaskList()){
-            System.out.println(issue.toString());
-        }
-        for (Task issue: fbm.getSubtaskList()){
-            System.out.println(issue.toString());
-        }
-
-    }
-
-    // свои методы
-    // сохранение в файл
+    // own methods
+    // saving to file
     public void save() {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(path.toString()))) {
             bw.write("id,type,name,status,description,startDate,duration,parentEpic\n");
 
-            // сохраняем эпики
+            // saving epics
             for (Task epic: epicList.values()){
                 bw.write(converter.convertToString(epic) + System.lineSeparator());
             }
-            // сохраняем сабтаски
+            // saving subtasks
             for (Task subTask: subtaskList.values()){
                 bw.write(converter.convertToString(subTask) + System.lineSeparator());
             }
-            // сохраняем таски
+            // saving tasks
             for (Task task: taskList.values()){
                 bw.write(converter.convertToString(task) + System.lineSeparator());
             }
-            //сохраняем историю
+            // saving history
             bw.write("\n");
             for (Task item: history.getHistory()){
                 bw.write(item.getId() + ",");
@@ -108,11 +53,11 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 
     public void loadFromFile(File file) {
 
-        // обновляем данные файла
+        // updating data for file
         this.file = file;
         this.path = file.toPath();
 
-        // чистим hashMap с данными для записи новых данных из файла
+        // clearing hashmap with data for recording new data from file
         taskList.clear();
         epicList.clear();
         subtaskList.clear();
@@ -124,16 +69,16 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                 throw new ManagerSaveException("Файл с данными для загрузки пустой");
             }
         } catch (IOException e) {
-            new File(file.getPath()); // если файла нет - создаем
+            new File(file.getPath()); // creating file if no exists
         }
-        int lastId = 0; // нужна для того, чтобы после всех загрузок выставить корректный id для новых issue
+        int lastId = 0; // is needed for setting proper id for new issues after loading data
         for (int i = 1; i < data.length; i++){
-            // Сначала грузим все эпики, сабтаски и таски
-            if (!data[i].isEmpty()){ // вдруг файл пустой
+            // first load all epics, then subtasks and tasks
+            if (!data[i].isEmpty()){ // in case of empty file
                 String[] line = data[i].split(",");
                 StatusList status = StatusList.valueOf(line[3]);
-                int index = Integer.valueOf(line[0]); // переменная для установки issueID
-                if (index > lastId) lastId = index; // нужно найти максимальное значение index, чтобы в конце установить корректный issueId
+                int index = Integer.valueOf(line[0]); // variable for setting issueID
+                if (index > lastId) lastId = index; // need to find max value of index to set proper issueID
 
                 switch (line[1]){
                     case "EPIC":
@@ -141,8 +86,8 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                         if (line[6].equals("null")) line[6] = "0";
                         Instant epicStartDate = Instant.parse(line[5]);
                         int epicDuration = Integer.parseInt(line[6]);
-                        Epic epic = new Epic(line[2], line[4], status, index, epicStartDate, epicDuration); // создаем эпик
-                        epicList.put(index,epic); // переписан метод добавления в я hashmap
+                        Epic epic = new Epic(line[2], line[4], status, index, epicStartDate, epicDuration);
+                        epicList.put(index,epic);
                         break;
                     case "SUBTASK":
                         if (line[5].equals("null")) line[5] = Instant.ofEpochMilli(0).toString();
@@ -152,34 +97,34 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                         Instant subTaskStartDate = Instant.parse(line[5]);
                         int subTaskDuration = Integer.parseInt(line[6]);
                         SubTask subTask = new SubTask(line[2], line[4], status, parentEpicId, index, subTaskStartDate, subTaskDuration);
-                        parentEpic.addSubTaskToEpic(subTask); // прописали сабтаску в эпике
-                        subTask.setParentEpic(parentEpic.getId()); // прописали эпик в сабтаске
-                        subtaskList.put(index, subTask); // апдейт сабтаски в hashmap
-                        epicList.put(parentEpicId, parentEpic); // апдейт эпика в hashmap
+                        parentEpic.addSubTaskToEpic(subTask);
+                        subTask.setParentEpic(parentEpic.getId());
+                        subtaskList.put(index, subTask);
+                        epicList.put(parentEpicId, parentEpic);
                         break;
                     case "TASK":
                         if (line[5].equals("null")) line[5] = Instant.ofEpochMilli(0).toString();
                         if (line[6].equals("null")) line[6] = "0";
                         Instant taskStartDate = Instant.parse(line[5]);
                         int taskDuration = Integer.parseInt(line[6]);
-                        Task task = new Task(line[2], line[4], status, index, taskStartDate, taskDuration); // создали таску
+                        Task task = new Task(line[2], line[4], status, index, taskStartDate, taskDuration);
                         taskList.put(index, task);
                         break;
                 }
             } else {
-                break; // если файл пустой - не грузим из него ничего
+                break; // if the file is empty - don't load anything
             }
         }
-        setLastId(lastId); // обновляем индекс задач, чтобы новые добавлялись с последнего имеющегося
+        setLastId(lastId);
 
-        // грузим историю
+        // loading history
         if (data == null || data.length == 0){
             System.out.println("Файл с данными для загрузки пустой\n");
             return;
-        } else if (data.length > 1){ // проверяем что если файл не пустой, там есть что-то кроме заголовка csv
+        } else if (data.length > 1){ // check if the file is not empty and there is anything but header of csv
             String[] historyLine = data[data.length - 1].split(",");
             for (int i = 0; i < historyLine.length; i++) {
-                try { // если файл с данными поврежден или нет сохраненных ID для истории в конце файла - надо пропустить обработку метода
+                try { // if the file is damaged of there is no saved ID for history - method processing should be skipped
                     int issueId = Integer.parseInt(historyLine[i]);
                     if (epicList.containsKey(issueId)) {
                         history.add(getEpicById(issueId));
@@ -195,14 +140,14 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                     throw new ManagerSaveException(e, "В файле нет записей об истории обращения к задачам");
                 }
             }
-        } // если в файле нет даже заголовка - не грузим из него ничего
+        } // if the file hasn't even headers - don't load anything
 
     }
 
     /**
-     * Вспомогательный класс для записи в файл
-     * метод convertToString
-     * Конвертирует задачи в String, в зависимости от типа
+     * Helping class for writing to file
+     * method convertToString
+     * Converts tasks to String depending on type
      */
     class Converter<T>{
         public String convertToString (T issue){
@@ -239,10 +184,10 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         }
     }
 
-    // переопределенные методы
+    // Overrided methods
     // Epic
     @Override
-    public void setLastId(int newId){ // метод, нужный для работы загрузчика
+    public void setLastId(int newId){
         super.setLastId(newId);
     }
 
@@ -268,6 +213,11 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     public void updateEpic(Epic issue){
         super.updateEpic(issue);
         save();
+    }
+
+    @Override
+    public void calculateEpicDuration(Epic epic){
+        super.calculateEpicDuration(epic);
     }
 
     // SubTask

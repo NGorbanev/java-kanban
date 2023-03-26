@@ -18,7 +18,6 @@ import java.util.List;
 
 public class InMemoryHistoryManager implements HistoryManager {
     CustomLinkedList linkedList = new CustomLinkedList();
-    //final int maxHistoryStorage = 10; // максимальное количество issue в истории
 
     class Node<T>{
         public T data;
@@ -33,30 +32,25 @@ public class InMemoryHistoryManager implements HistoryManager {
         }
     }
     
-    public class CustomLinkedList<T>{
+    private class CustomLinkedList<T>{
         private Node head;
         private Node tail;
         private HashMap<Integer, Node> historyMap = new HashMap<>();
 
-        public int getSize() {
-            return historyMap.size();
-        }
-
-        public void add(Task issue) {
-            // перенес логику добавления в конец и удаления повтора сюда
+        private void add(Task issue) {
             if (historyMap.containsKey(issue.getId())) {
                 remove(issue.getId());
                 historyMap.put(issue.getId(), linkLast(issue));
             } else {
-                historyMap.put(issue.getId(), linkLast(issue)); // после всех проверок добавляем запись в историю, если надо
+                historyMap.put(issue.getId(), linkLast(issue));
             }
         }
-        public void remove(int issueId){
+        private void remove(int issueId){
             Node node = historyMap.get(issueId);
             removeNode(node);
         }
 
-        public void removeNode(Node node){
+        private void removeNode(Node node){
             if (node != null) {
                 if (node.prev == null) {
                     head = node.next;
@@ -72,16 +66,16 @@ public class InMemoryHistoryManager implements HistoryManager {
             }
         }
 
-        public Node linkLast(Task item){
+        private Node linkLast(Task item){
             final Node oldTail = tail;
             final Node newTail = new Node(tail, item, null);
             tail = newTail;
-            if (oldTail == null) head = newTail; // проверяем не пустой ли был список
-            else oldTail.next = newTail; // если не пустой был - регистрируем новый хвост в бывшем старом
-            return newTail; // для проверки, ну и на всякий случай, если надо будет получить "ок" о том, что объект добавлен
+            if (oldTail == null) head = newTail; // check if the list is empty
+            else oldTail.next = newTail; // if not empty - register new tail instead of old one
+            return newTail; // added hust in case if returning new tail would be necessary
         }
 
-        public ArrayList<T> getTasks(){ // По заданию надо переложить в ArrayList. Перекладываем
+        private ArrayList<T> getTasks(){
             ArrayList<T> tList = new ArrayList<>();
             for (Node x = head; x != null; x = x.next){
                 tList.add((T) x.data);
@@ -91,7 +85,7 @@ public class InMemoryHistoryManager implements HistoryManager {
     }
     @Override
     public void add(Task issue){
-            linkedList.add(issue); // переписал в соответствии с комментариями на ревью, при этом логику перенес в класс CustomLinkedList. Так показалось логичнее в итоге
+            linkedList.add(issue);
     }
 
     @Override
@@ -101,7 +95,7 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     @Override
     public List<Task> getHistory() {
-        return linkedList.getTasks(); // по заданию надо переложить в ArrayList. Оставил перекладчик в классе, чтобы если надо будет выдавать в другом формате - проще было менять
+        return linkedList.getTasks();
     }
 
 

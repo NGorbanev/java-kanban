@@ -7,17 +7,16 @@ import Issues.Task;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.TreeSet;
 
 
 public interface TaskManager {
 
-    // служебные методы
+    // service methods
     public List<Task> getHistory();
 
-    // методы для класса Issues.Epic
+    // methods of Issues.Epic class
     public Epic createEpic(String name, String description);
-
-    // метод расчета статус эпика, в зависимости от статуса подзадач
 
     public List<Epic> getEpicList();
 
@@ -31,7 +30,7 @@ public interface TaskManager {
 
     public void updateEpic(Epic issue);
 
-    // методы Issues.SubTask
+    // methods of Issues.SubTask class
     public SubTask createSubTask(String name, String description, int parentEpic);
 
     public HashMap<Integer, SubTask> getSubtasks();
@@ -42,8 +41,6 @@ public interface TaskManager {
 
     public void linkSubTask(Epic epic, SubTask subTask);
 
-  //  public void submitSubTask(SubTask issue);
-
     public SubTask getSubTaskById(int issueId);
 
     public void updateSubTask(SubTask issue);
@@ -52,7 +49,7 @@ public interface TaskManager {
 
     public void deleteAllSubTasks();
 
-    // матоды Issues.Task
+    // methods of Issues.Task class
     public Task createTask(String name, String description);
 
     public void updateTask(Task task);
@@ -65,4 +62,10 @@ public interface TaskManager {
 
     public void deleteTaskById(int id);
     public List<Task> getTaskList();
+
+    public void calculateEpicDuration(Epic testEpic);
+
+    public void checkTimeline();
+
+    public TreeSet<Task> getPrioritizedTasks();
 }

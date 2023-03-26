@@ -7,7 +7,6 @@ public class Epic extends Task {
     private ArrayList<Integer> subTasksList = new ArrayList<>();
 
     // Epic duration comes from Task class. Duration calculation is implemented at InMemoryTaskManager with calculateEpicDuration method
-
     // bunch of constructors for all possible needed cases
     public Epic(String name, String description, StatusList status, int id){
         super(name, description, status, id);
@@ -22,8 +21,6 @@ public class Epic extends Task {
         super(name, description, status, id, startTime, dur);
     }
     public Epic(){}
-
-
 
     public void setName(String newName){
         super.setName(newName);
@@ -68,6 +65,4 @@ public class Epic extends Task {
                 "DESCRIPTION=" + getDescription();
         return str;
     }
-    // методы работы с датами эпика
-
 }

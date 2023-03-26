@@ -47,7 +47,7 @@ public class Task {
     public Task(){}
 
 
-    // методы класса
+    // methods of the class
     public String getDescription(){
         String desc = this.description;
         return desc;
@@ -97,8 +97,7 @@ public class Task {
         return str;
     }
 
-    // методы работы со сроками задачи
-
+    // methods for working with time and duration
     public void setStartTime(Instant startTime){
         this.startTime = startTime;
     }
@@ -108,7 +107,7 @@ public class Task {
     }
 
     public void setDuration(int duration) {
-        this.duration = Long.valueOf(duration * 60_000); // принимаем минуты, переводим в миллисекунды, получаем продолжительность
+        this.duration = Long.valueOf(duration * 60_000); // recevie minutes, convert to mills, calculate duration
     }
 
     public Long getDuration(){
