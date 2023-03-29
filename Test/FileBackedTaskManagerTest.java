@@ -8,10 +8,10 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.nio.file.Path;
 
-public class fileBackedTaskManagerTest extends taskManagerTest<FileBackedTasksManager> {
+public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTasksManager> {
     Path path = Path.of("./src/Data/test.csv");
 
-    fileBackedTaskManagerTest(){
+    FileBackedTaskManagerTest(){
         manager = new FileBackedTasksManager(path.toString());
     }
 

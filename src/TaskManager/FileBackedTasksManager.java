@@ -221,9 +221,19 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     // SubTask
+    // todo clean the comments
+    /*
     @Override
     public SubTask createSubTask(String name, String description, int parentEpic){
         SubTask st = super.createSubTask(name, description, parentEpic);
+        save();
+        return st;
+    }
+    */
+
+    @Override
+    public SubTask createSubTask(SubTask subTask){
+        SubTask st = super.createSubTask(subTask);
         save();
         return st;
     }
@@ -259,12 +269,22 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     // Task
+    //todo clean the comments
+    /*
     @Override
     public Task createTask(String name, String description){
         Task t = super.createTask(name, description);
         save();
         return t;
     }
+    */
+    @Override
+    public Task createTask(Task task){
+        Task t = super.createTask(task);
+        save();
+        return t;
+    }
+
 
     @Override
     public void updateTask(Task task){

@@ -10,7 +10,7 @@ import java.time.Instant;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class inMemoryHistoryManagerTest {
+public class InMemoryHistoryManagerTest {
     int id = 0;
     InMemoryHistoryManager manager;
     // public Task(String name, String description, StatusList status, int id, Instant startTime, int dur)

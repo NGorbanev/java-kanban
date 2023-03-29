@@ -62,7 +62,10 @@ public class Epic extends Task {
                 "TYPE=" + IssueTypes.EPIC + ", " +
                 "STATUS=" + getStatus() + ", " +
                 "NAME=" + getName() + ", " +
-                "DESCRIPTION=" + getDescription();
+                "DESCRIPTION=" + getDescription() + ", " +
+                "START_TIME=" + getStartTime() + ", " +
+                "DURATION=" + getDuration() + ", " +
+                "END_TIME=" + getEndTime();
         return str;
     }
 }

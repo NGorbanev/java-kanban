@@ -31,7 +31,9 @@ public interface TaskManager {
     public void updateEpic(Epic issue);
 
     // methods of Issues.SubTask class
-    public SubTask createSubTask(String name, String description, int parentEpic);
+    // todo clean the comments
+    //public SubTask createSubTask(String name, String description, int parentEpic);
+    public SubTask createSubTask(SubTask subTask);
 
     public HashMap<Integer, SubTask> getSubtasks();
 
@@ -50,7 +52,8 @@ public interface TaskManager {
     public void deleteAllSubTasks();
 
     // methods of Issues.Task class
-    public Task createTask(String name, String description);
+    //public Task createTask(String name, String description);
+    public Task createTask(Task task);
 
     public void updateTask(Task task);
 
@@ -65,7 +68,8 @@ public interface TaskManager {
 
     public void calculateEpicDuration(Epic testEpic);
 
-    public void checkTimeline();
+    // todo clean the comments
+    //public void checkTimeline();
 
     public TreeSet<Task> getPrioritizedTasks();
 }

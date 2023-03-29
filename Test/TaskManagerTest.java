@@ -1,80 +1,89 @@
 import Interfaces.TaskManager;
-import Issues.StatusList;
-import Issues.Task;
 import Issues.Epic;
+import Issues.StatusList;
 import Issues.SubTask;
-import Utils.Managers;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import Issues.Task;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.nio.file.Path;
 import java.time.Instant;
 import java.util.HashMap;
 
-abstract class TM<T extends TaskManager>{
+import Utils.TimeLineCrossingsException;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
-}
 
-public class TaskManagerTest<T extends TaskManager> {
+public abstract class TaskManagerTest<T extends TaskManager> {
 
-    //T manager = (T) Managers.getDefault();
-
-    Path path = Path.of("./src/Data/test.csv"); // путь сохранения файла с тестовыми данными
-    TaskManager manager = Managers.getFileBaked(path.toString()); // такой вариант гарантирует тестирования InMemoryTM & FileBackedTM
+    T manager;
     Task testTask;
     Epic testEpic;
     SubTask testSubTask;
 
-
     @BeforeEach
     public void createIssues() {
-        testTask = manager.createTask("TestTaskName1", "Task ID should be = 1");
-        testEpic = manager.createEpic("TestEpic1", "Epic ID should be = 2");
-        testSubTask = manager.createSubTask(
+        //todo clean the comments
+        //manager.createTask("TestTaskName1", "Task ID should be = 1");
+        testTask = manager.createTask(new Task("TestTaskName1", "Task ID should be = 1"));
+        manager.createEpic("TestEpic1", "Epic ID should be = 2");
+        testSubTask = manager.createSubTask(new SubTask(
+                "TestSubTask1",
+                "SubTask ID should be = 3",
+                2));
+
+
+
+        /* todo clean the comments
+        manager.createSubTask(
                 "TestSubTask1",
                 "SubTask ID should be = 3",
                 2);
+        testSubTask = manager.getSubtaskList().get(0);
+        */
+        testEpic = manager.getEpicList().get(0);
+        //testTask = manager.getTaskList().get(0);
+
     }
 
-    @AfterEach // после каждого теста чистим файл, чтобы не мешали задачи, созданные в тестах ранее
-    public void fileClear() throws FileNotFoundException {
-        File file = new File(path.toString());
-        PrintWriter writer = new PrintWriter(file);
-        writer.print("");
-        writer.close();
-    }
-
+    // Epic's methods
     @Test
-    public void calculateEpicDuration(){
+    public void calculateEpicDurationTest(){
+        /* todo clean the comments
         SubTask testSubTask2 = manager.createSubTask(
                 "TestSubTask2",
                 "Needed for duration test",
                 2
         );
-        testEpic.setStartTime(Instant.ofEpochMilli(0));
-        testSubTask.setDuration(1);
-        testSubTask2.setDuration(5);
+        */
+        SubTask testSubTask2 = manager.createSubTask(new SubTask(
+                "TestSubTask2", "Needed for duration test",2));
 
-        //Assertions.assertEquals(360_000L, manager.calculateEpicDuration(testEpic));
+        manager.getEpicById(testEpic.getId()).setStartTime(Instant.ofEpochMilli(0));
+        manager.getSubTaskById(testSubTask2.getId()).setStartTime(Instant.now());
+        testSubTask2.setStartTime(manager.getSubTaskById(testSubTask2.getId()).getStartTime());
+        manager.getSubTaskById(testSubTask.getId()).setDuration(1L);
+        manager.getSubTaskById(testSubTask2.getId()).setDuration(5L);
+        manager.calculateEpicDuration(testEpic);
+        Assertions.assertEquals(2, manager.getEpicById(2).getSubTasks().size()); // two subtasks should be here
+        // start time equals the earliest subtask start time:
+        Assertions.assertEquals(manager.getSubTaskById(3).getStartTime(), manager.getEpicById(2).getStartTime());
+        // end time equals latest subtask end time:
+        Assertions.assertEquals(testSubTask2.getEndTime(), manager.getEpicById(2).getEndTime());
     }
-
 
     @Test
     public void taskTestingUnit() {
         Assertions.assertEquals(
-                "ID=1, TYPE=TASK,STATUS=NEW, NAME=TestTaskName1, DESCRIPTION=Task ID should be = 1",
+                "ID=1, TYPE=TASK,STATUS=NEW, NAME=TestTaskName1, DESCRIPTION=Task ID should be = 1, " +
+                        "START_TIME=1970-01-01T00:00:00Z, DURATION=0, END_TIME=1970-01-01T00:00:00Z",
                 testTask.toString());
         Assertions.assertEquals(1, manager.getTaskList().size(),
-                "Task не добавлен в taskList"); // проверяем что запись попала в список
+                "Task не добавлен в taskList"); // Task list check
         Assertions.assertSame(testTask, manager.getTaskList().get(0),
-                "В taskList добавлен некорректный объект Task"); // проверяем что в списке именно тот объект
+                "В taskList добавлен некорректный объект Task"); // check if the task is a proper one
 
-        // проверка изменений статусов
+        // status changing test
         Assertions.assertEquals(StatusList.NEW, testTask.getStatus(),
                 "Неверный статус Task");
         manager.setTaskStatus(testTask, StatusList.IN_PROGRESS);
@@ -84,103 +93,109 @@ public class TaskManagerTest<T extends TaskManager> {
         Assertions.assertEquals(StatusList.DONE, testTask.getStatus(),
                 "Неверный статус Task");
 
-        // проверка наличия задачи в истории
-        Assertions.assertEquals(1, manager.getHistory().size());
+        // history check
+        Assertions.assertEquals(1, manager.getHistory().size(),
+                "количество записей в истории не соответствует ожидаемому");
     }
     @Test
     public void epicTestingUnit(){
 
+        // epic count should be = 1
         Assertions.assertEquals(1, manager.getEpicList().size(),
                 "Количество эпиков в списке не соответствует ожидаемому");
-        Assertions.assertEquals(1, manager.getSubtaskList().size(),
+
+        // check if Subtasks linked to epic count is equals actual subtasks count
+        Assertions.assertEquals(manager.getEpicById(2).getSubTasks().size(), manager.getSubtaskList().size(),
                 "Количество SubTask в списке не соответствует ожидаемому");
+
+        // check subtask delete method
         manager.deleteSubTaskById(3);
         Assertions.assertEquals(
                 0,
                 manager.getSubtasks().size(),
-                "SubTask не удален из subTaskList"); // проверка удаления сабтаски
+                "SubTask не удален из subTaskList");
         Assertions.assertEquals(
                 0,
                 testEpic.getSubTasks().size(),
-                "SubTask не удалена из родительского эпика"); // проверка удаления сабтаски из эпика
+                "SubTask не удалена из родительского эпика"); // check result of a case
 
-        // проверка создания эпика
+        // epic creation test
         Assertions.assertEquals(
-                "ID=2, TYPE=EPIC, STATUS=NEW, NAME=TestEpic1, DESCRIPTION=Epic ID should be = 2",
+                "ID=2, TYPE=EPIC, STATUS=NEW, NAME=TestEpic1, DESCRIPTION=Epic ID should be = 2, " +
+                        "START_TIME=1970-01-01T00:00:00Z, DURATION=0, END_TIME=1970-01-01T00:00:00Z",
                 testEpic.toString());
         Assertions.assertEquals(1, manager.getEpicList().size(),
-                "Epic не добавлен в список epicList"); // проверяем что запись попала в список
+                "Epic не добавлен в список epicList"); // check epiclist records
         Assertions.assertSame(testEpic, manager.getEpicList().get(0),
-                "Некорректный объект добавлен в epicList"); // проверяем что в списке именно тот объект
+                "Некорректный объект добавлен в epicList"); // check if the epic is proper one
         Assertions.assertEquals(0, testEpic.getSubTasks().size(),
-                "Некорректное количество дочерних задач в эпике"); // проверяем что сабтасклист пуст
-        Assertions.assertEquals(null, manager.getSubTaskById(100)); // проверка на получение несуществующей сабтаски
+                "Некорректное количество дочерних задач в эпике"); // check if subtasklist of epic is empty
+        Assertions.assertNull(manager.getSubTaskById(100)); // request of null subtask
 
-        NullPointerException ex = Assertions.assertThrows( // проверка обращения к параметрам несуществующей сабтаски
+        NullPointerException ex = Assertions.assertThrows( // exception for null subtask request
                 NullPointerException.class,
                 () -> manager.getSubTaskById(100).getId()
         );
-        // создаем сабтаски для проверки работы расчета статуса
-        testSubTask = manager.createSubTask(
+        // create subtasks for epic status check
+        testSubTask = manager.createSubTask(new SubTask(
                 "TestSubTask1",
                 "SubTask ID should be = 3",
-                2);
-        SubTask testSubTask2 = manager.createSubTask(
+                2));
+        SubTask testSubTask2 = manager.createSubTask(new SubTask(
                 "TestSubTask2",
                 "SubTask ID should be = 4",
-                2);
+                2));
 
-        Assertions.assertEquals(2, testEpic.getSubTasks().size()); // проверяем что сабтасклист теперь не пуст
+        Assertions.assertEquals(2, testEpic.getSubTasks().size()); // check if subtasks were created correctly
 
-        // Все подздадачи в статусе NEW
+        // all subtasks are at NEW status. Epic status should be NEW
         manager.setSubTaskStatus(testSubTask, StatusList.NEW);
         manager.setSubTaskStatus(testSubTask2, StatusList.NEW);
         Assertions.assertEquals(StatusList.NEW, testEpic.getStatus());
 
-        // Все подздадачи в статусе DONE
+        // All subtaskss are at DONE status. Epic status should be DONE
         manager.setSubTaskStatus(testSubTask, StatusList.DONE);
         manager.setSubTaskStatus(testSubTask2, StatusList.DONE);
         Assertions.assertEquals(StatusList.DONE, testEpic.getStatus());
 
-        // подзадачи в статусе NEW и DONE
+        // some subtasks ar at NEW and some are at DONE statuses. Epic status should be IN_PROGRESS
         manager.setSubTaskStatus(testSubTask, StatusList.DONE);
         manager.setSubTaskStatus(testSubTask2, StatusList.NEW);
         Assertions.assertEquals(StatusList.IN_PROGRESS, testEpic.getStatus());
 
-        // подзадачи со статусом IN_PROGRESS
+        // subtasks are at IN_PROGRESS status, epic should be IN_PROGRESS
         manager.setSubTaskStatus(testSubTask, StatusList.IN_PROGRESS);
         manager.setSubTaskStatus(testSubTask2, StatusList.IN_PROGRESS);
         Assertions.assertEquals(StatusList.IN_PROGRESS, testEpic.getStatus());
 
-        // проверка наличия задач в истории
+        // history check
         Assertions.assertEquals(1, manager.getHistory().size());
 
     }
-
     @Test
     public void subTaskTestingUnit(){
         Assertions.assertEquals(
-                "ID=3, TYPE=SUBTASK, STATUS = NEW, PARENT=2, NAME=TestSubTask1, DESCRIPTION=SubTask ID should be = 3",
+                "ID=3, TYPE=SUBTASK, STATUS = NEW, PARENT=2, NAME=TestSubTask1, " +
+                        "DESCRIPTION=SubTask ID should be = 3, START_TIME=1970-01-01T00:00:00Z, DURATION=0, " +
+                        "END_TIME=1970-01-01T00:00:00Z",
                 testSubTask.toString(),
                 "Неверное содержание сабтаски"
         );
-        Assertions.assertEquals(2, testSubTask.getParentEpicId()); // проверяем что эпик привязан к сабтаске
+        Assertions.assertEquals(2, testSubTask.getParentEpicId()); // check if epic has a data of subtask
 
-        // проверка наличия задач в истории
+        // history check
         Assertions.assertEquals(1, manager.getHistory().size());
     }
-
-    // тестируем все методы
     @Test
     public void deleteEpicByIdTest(){
-        manager.deleteEpicById(2);
-        Assertions.assertEquals(0, manager.getEpicList().size()); // стандартное поведение
+        manager.deleteEpicById(2); // delete epic
+        Assertions.assertEquals(0, manager.getEpicList().size()); // should be 0
         Assertions.assertThrows(
-            NullPointerException.class,() -> {
-            manager.deleteEpicById(2); // удаляем несуществующий эпик. Это же проверка на пустой список
-        });
+                NullPointerException.class,() -> {
+                    manager.deleteEpicById(2); // trying to delete non-existing epic. Case of trying to rich non-existing epic is also tested here
+                });
 
-        // проверка удаления задач в истории
+        // Check if history is cleared after deleting issues
         Assertions.assertEquals(0, manager.getHistory().size());
     }
     @Test
@@ -188,127 +203,132 @@ public class TaskManagerTest<T extends TaskManager> {
         manager.deleteAllEpics();
         Assertions.assertEquals(0, manager.getEpicList().size());
 
-        // проверка отсутствия задач в истории
+        // Check if history is cleared after deleting issues
         Assertions.assertEquals(0, manager.getHistory().size());
     }
     @Test
     public void getEpicByIdTest(){
-        Assertions.assertSame(testEpic, manager.getEpicById(2)); // тут только стандартное поведение. Вызов несуществуюшего - дальше
+        Assertions.assertSame(testEpic, manager.getEpicById(2));
 
-        // проверка наличия задач в истории
+        // Check if history is cleared after deleting issues
         Assertions.assertEquals(1, manager.getHistory().size());
-    };
-
+    }
     @Test
     public void getEpicListTest(){
-        Assertions.assertEquals(1, manager.getEpicList().size()); // стандартное поведение
+        Assertions.assertEquals(1, manager.getEpicList().size()); // standart case
         manager.deleteAllEpics();
-        Assertions.assertEquals(0, manager.getEpicList().size()); // с пустым списком
-        Assertions.assertNull(manager.getEpicById(100)); // вызов несуществующего эпика
+        Assertions.assertEquals(0, manager.getEpicList().size()); // case with empty list
+        Assertions.assertNull(manager.getEpicById(100)); // requesting non-existing issue
     }
     @Test
     public void getAllSubtasksByEpicIdTest(){
-        // стандартный кейс
+        // standart case
         Assertions.assertEquals(1, manager.getAllSubtasksByEpicId(2).size());
 
-        // проверка очистки списка
+        // list clearance check
         manager.deleteAllSubTasks();
         Assertions.assertEquals(0, manager.getAllSubtasksByEpicId(2).size());
 
-        // вызов по несуществующей фиче - ожидаем выброс исключения
-        Assertions.assertThrows(NullPointerException.class, () -> {
-            manager.getAllSubtasksByEpicId(100).size();
-        });
-        // проверка наличия задач в истории
+        // non-existing issue request. Exception expected
+        Assertions.assertThrows(NullPointerException.class, () -> manager.getAllSubtasksByEpicId(100).size());
+
+        // history check
         Assertions.assertEquals(1, manager.getHistory().size());
     }
-
     @Test
     public void updateEpicTest(){
         Epic epic = manager.getEpicById(2);
         epic.setName("Updated epic name");
         manager.updateEpic(epic);
-        Assertions.assertSame(epic, manager.getEpicById(2)); // стандартный кейс
+        Assertions.assertSame(epic, manager.getEpicById(2)); // standart case
         manager.deleteAllEpics();
-        final Epic nullEpic = manager.getEpicById(100); // берем несуществующий эпик
+        final Epic nullEpic = manager.getEpicById(100); // requesting non-existent epic
         Assertions.assertThrows(NullPointerException.class, () -> {
-            manager.updateEpic(nullEpic);}); // проверяем на пустом списке
-    };
-    // методы Issues.SubTask
+            manager.updateEpic(nullEpic);}); // check method with empty list
+    }
+
+    // Issues.SubTask methods
     @Test
     public void createSubTaskTest(){
         Assertions.assertEquals(1, manager.getSubtaskList().size());
 
-        // проверяем что при привязке сабтаски к несуществующему эпику выбрасывается NullPointerException
         Assertions.assertThrows(NullPointerException.class, () -> {
-        SubTask subTaskForNullEpic = manager.createSubTask(
-                "Test subtask",
-                "Link to null epic",
-                100)
-        ;});
-        // проверка наличия задач в истории
+            SubTask subTaskForNullEpic = manager.createSubTask(new SubTask(
+                    "Test subtask",
+                    "Link to null epic",
+                    100))
+                    ;});
+        // history check
         Assertions.assertEquals(1, manager.getHistory().size());
     }
     @Test
     public void getSubtasksTest(){
-        manager.createSubTask("TestSubTask2", "This subtask is needed for testing get subTasks()", 2);
+        manager.createSubTask(new SubTask(
+                "TestSubTask2",
+                "This subtask is needed for testing get subTasks()",
+                2));
         HashMap<Integer, SubTask> testHashMap = manager.getSubtasks();
         Assertions.assertEquals(
-                "ID=4, TYPE=SUBTASK, STATUS = NEW, PARENT=2, NAME=TestSubTask2," +
-                        " DESCRIPTION=This subtask is needed for testing get subTasks()",
+                "ID=4, TYPE=SUBTASK, STATUS = NEW, PARENT=2, NAME=TestSubTask2, " +
+                        "DESCRIPTION=This subtask is needed for testing get subTasks(), " +
+                        "START_TIME=1970-01-01T00:00:00Z, DURATION=0, END_TIME=1970-01-01T00:00:00Z",
                 manager.getSubtasks().get(4).toString());
-        // проверка наличия задач в истории
+        // history check
         Assertions.assertEquals(1, manager.getHistory().size());
-    };
+    }
     @Test
     public void getSubtaskListTest(){
         Assertions.assertEquals(testSubTask.toString(), manager.getSubtaskList().get(0).toString());
 
-        // попутно проверка наличия задач в истории
+        // history check
         Assertions.assertEquals(1, manager.getHistory().size());
 
         manager.deleteAllSubTasks();
         Assertions.assertEquals(0, manager.getSubtasks().size());
-        testSubTask = manager.createSubTask("Test subtask", "Subtask for test", 2);
+        testSubTask = manager.createSubTask(new SubTask(
+                "Test subtask",
+                "Subtask for test",
+                2));
         manager.deleteAllEpics();
         Assertions.assertEquals(0, manager.getSubtasks().size()); // проверяем что при удалении эпиков сабтаски тоже удаляются
 
-        // проверка отсутствия задач в истории
+        // check if the issues are not in history
         Assertions.assertEquals(0, manager.getHistory().size());
     }
     @Test
     public void setSubTaskStatusTest(){
+        testSubTask = manager.getSubTaskById(3);
         manager.setSubTaskStatus(testSubTask, StatusList.DONE);
         Assertions.assertEquals(StatusList.DONE, testSubTask.getStatus());
-        // проверка наличия задач в истории
-        Assertions.assertEquals(1, manager.getHistory().size());
+        // history check. Should be two because getSubTaskById was used before
+        Assertions.assertEquals(2, manager.getHistory().size());
     }
     @Test
     public void linkSubTaskTest(){
         manager.createEpic(
                 "Epic ID 4",
                 "Here the subtask should be linked");
-        manager.createSubTask(
+        manager.createSubTask(new SubTask(
                 "Subtask for testing linkSubTask()",
                 "This subtask should be linked to epic ID=5",
-                2);
-        Assertions.assertEquals(0, manager.getEpicById(4).getSubTasks().size()); // эпик до привязки сабтаски
+                2));
+        Assertions.assertEquals(0, manager.getEpicById(4).getSubTasks().size()); // epic before linking subtask
         manager.linkSubTask(manager.getEpicById(4), manager.getSubTaskById(5));
-        Assertions.assertEquals(1, manager.getEpicById(4).getSubTasks().size()); // эпик после привязки сабтаски
+        Assertions.assertEquals(1, manager.getEpicById(4).getSubTasks().size()); // epic after linking subtask
 
-        // пробуем привязать сабтаску к несуществующему эпику ID=100, должны получить NullPointerException
+        // trying to link non-existent subtask to non-existent epic, NullPointerException should be reached
         Assertions.assertThrows(NullPointerException.class, () -> {
             manager.linkSubTask(manager.getEpicById(100), manager.getSubTaskById(5));
         });
     }
     @Test
     public void getSubTaskByIdTest(){
-        // стандартный кейс
+        // direct case
         Assertions.assertEquals(
                 manager.getSubtaskList().get(0).toString(),
                 manager.getSubTaskById(3).toString());
 
-        // обращение к несуществующей subTask
+        // requesting non-existent subTask
         Assertions.assertThrows(NullPointerException.class, () -> {
             manager.getSubTaskById(100).getId();
         });
@@ -320,128 +340,184 @@ public class TaskManagerTest<T extends TaskManager> {
         manager.updateSubTask(subTaskForTest);
         Assertions.assertEquals("New name for update", manager.getSubTaskById(testSubTask.getId()).getName());
 
-        // сценарий с пустым списком. Берем сохраненную ранее сабтаску и пробуем заапдейтить ее в пустой список
-        manager.deleteAllSubTasks(); // удаляем все сабтаски. subTaskList size = 0
-        manager.updateSubTask(subTaskForTest); // апдейт сабтаски, сохраненной ранее
-        Assertions.assertNotNull(manager.getSubTaskById(subTaskForTest.getId())); // ожидаемое поведение - update происходит штатно
+        // case with empty list. Get saved subtask and trying to link it to empty list
+        manager.deleteAllSubTasks(); // deleting all subtasks. subTaskList size = 0
+        manager.updateSubTask(subTaskForTest); // updating subtask saved before
+        Assertions.assertNotNull(manager.getSubTaskById(subTaskForTest.getId())); // expected: update comes correct
 
-        // удаляем эпики. Ожидаемое поведение - updateSubTask не происходит на пустых списках subTaskList & epicList
+        // deleting epics. Expected behavior - updateSubTask doesn't come at empty lists subTaskList & epicList
         manager.deleteAllEpics();
         Assertions.assertEquals(0, manager.getEpicList().size());
         Assertions.assertThrows(NullPointerException.class, () -> {
             manager.updateSubTask(subTaskForTest);
         });
 
-    };
+    }
     @Test
     public void deleteSubTaskByIdTest(){
-        // прямой сценарий
+        // direct case
+        testSubTask = manager.getSubTaskById(3);
         manager.deleteSubTaskById(testSubTask.getId());
         Assertions.assertEquals(0, manager.getSubtaskList().size());
 
-        // удаление несуществующей сабтаски. Ожидание - NullPointerEx. Это же поведение будет при пустом списке
+        // deleting non-existent subtask. Expectations - NullPointerEx. Same behavior should be with empty list
         Assertions.assertThrows(NullPointerException.class, () -> {
             manager.deleteSubTaskById(100);
         });
-        /* проверка отсутствия задач в истории. При обращении к удалению сабтаски, вызывается в том числе
-         и материанский эпик, потому он остается в истории. Проверяем что там только он */
+        /*
+        History check. While requesting deleteSubTaskById the maternal epic is also requesting, that's why it remains in History.
+        Need to check if it's the only one out there
+        */
         Assertions.assertEquals(
-                "[ID=2, TYPE=EPIC, STATUS=NEW, NAME=TestEpic1, DESCRIPTION=Epic ID should be = 2]",
-                manager.getHistory().toString());
-    };
-    @Test
-    public void deleteAllSubTasksTest(){
-        // прямой кейс
-        manager.deleteAllSubTasks();
-        Assertions.assertEquals(0, manager.getSubtaskList().size());
-
-        // повтор удаления на пустом списке. Ожидаемый результат - тот же что и прямом сценарии
-        manager.deleteAllSubTasks();
-        Assertions.assertEquals(0, manager.getSubtaskList().size());
-
-        // тут та же логика что и при удалении таски, так как массовое удаление удаляет все, по одной
-        Assertions.assertEquals(
-                "[ID=2, TYPE=EPIC, STATUS=NEW, NAME=TestEpic1, DESCRIPTION=Epic ID should be = 2]",
+                "[ID=2, TYPE=EPIC, STATUS=NEW, NAME=TestEpic1, DESCRIPTION=Epic ID should be = 2, " +
+                        "START_TIME=1970-01-01T00:00:00Z, DURATION=0, END_TIME=1970-01-01T00:00:00Z]",
                 manager.getHistory().toString());
     }
     @Test
+    public void deleteAllSubTasksTest(){
+        // direct case
+        manager.deleteAllSubTasks();
+        Assertions.assertEquals(0, manager.getSubtaskList().size());
+
+        // trying to delete at empty list. Expected result - same as direct case
+        manager.deleteAllSubTasks();
+        Assertions.assertEquals(0, manager.getSubtaskList().size());
+
+        // same logic as deleting one task is expected. Cause mass deletion goes the same way
+        Assertions.assertEquals(
+                "[ID=2, TYPE=EPIC, STATUS=NEW, NAME=TestEpic1, DESCRIPTION=Epic ID should be = 2, " +
+                        "START_TIME=1970-01-01T00:00:00Z, DURATION=0, END_TIME=1970-01-01T00:00:00Z]",
+                manager.getHistory().toString());
+    }
+
+    // Task methods
+    @Test
     public void createTaskTest(){
-        manager.createTask("Test task2", "Issue id should be 4");
+        manager.createTask(new Task("Test task2", "Issue id should be 4"));
         Assertions.assertEquals(2, manager.getTaskList().size());
 
-        // проверка наличия задач в истории
+        // history check
         Assertions.assertEquals(1, manager.getHistory().size());
     }
     @Test
     public void updateTaskTest(){
-        // прямой кейс
+        // direct case
         testTask.setName("New name for test task");
         manager.updateTask(testTask);
         Assertions.assertEquals("New name for test task", manager.getTaskById(1).getName());
 
-        // попытка апдейта удаленной таски
+        // trying to update non-existing task
         Task deletedTask = testTask;
         manager.deleteAllTasks();
         manager.updateTask(deletedTask);
-        Assertions.assertSame(deletedTask, manager.getTaskById(deletedTask.getId())); // проверяем что апдейт прошел
-        Assertions.assertNotNull(manager.getTaskById(deletedTask.getId())); // проверяем что получаемый объект != null
+        Assertions.assertSame(deletedTask, manager.getTaskById(deletedTask.getId())); // check if update is done
+        Assertions.assertNotNull(manager.getTaskById(deletedTask.getId())); // check that received object is != null
     }
     @Test
     public void setTaskStatus(){
-        // прямой кейс
+        // direct case
         testTask.setStatus(StatusList.IN_PROGRESS);
         manager.updateTask(testTask);
         Assertions.assertEquals(StatusList.IN_PROGRESS, manager.getTaskById(testTask.getId()).getStatus());
 
-        // попытка изменить статус несуществующей таске должна вызвать NullPointEx
+        // trying to change status of non-existing task should cause NullPointException
         Assertions.assertThrows(NullPointerException.class, ()->{
             manager.setTaskStatus(manager.getTaskById(100), StatusList.DONE);
         });
-    };
+    }
     @Test
     public void deleteAllTasksTest(){
-        // Основной кейс
+        // Direct case
         manager.deleteAllTasks();
         Assertions.assertEquals(0, manager.getTaskList().size());
 
-        // Дублируем на пустом списке, ожидаемый результат - как и при основном
+        // Same attempt on an empty list. Expected result - same as direct case
         manager.deleteAllTasks();
         Assertions.assertEquals(0, manager.getTaskList().size());
     }
     @Test
     public void getTaskByIdTest(){
-        // Прямой кейс
+        // Direct case
         Assertions.assertSame(testTask, manager.getTaskById(1));
 
-        // Запрос несуществующей таски
+        // request of non-existent task
         Assertions.assertNull(manager.getTaskById(100));
-    };
+    }
     @Test
     public void deleteTaskByIdTest(){
-        // Основной кейс
+        // Direct case
         manager.deleteTaskById(1);
         Assertions.assertEquals(0, manager.getTaskList().size());
 
-        // Попытка удалить несуществующую задачу
+        // Attempt to delete non-existing task
         manager.deleteTaskById(1);
         Assertions.assertEquals(0, manager.getTaskList().size());
-    };
+    }
     @Test
     public void getTaskListTest(){
-        // Прямой кейс
+        // Direct case
         Assertions.assertEquals(1, manager.getTaskList().size());
 
-        // Попытка обращения к пустому списку. Ожидаемый результат - taskList.size() = 0
+        // Attempt to request an empty list. Expected result - taskList.size() = 0
         manager.deleteAllTasks();
         //Assertions.assertEquals(0, manager.getTaskList().size());
         Assertions.assertEquals(0, manager.getTaskList().size());
-    };
-
+    }
     @Test
     public void getHistoryTest(){
-        // прямой кейс
+        // direct case
         Assertions.assertEquals(
-                "[ID=2, TYPE=EPIC, STATUS=NEW, NAME=TestEpic1, DESCRIPTION=Epic ID should be = 2]",
+                "[ID=2, TYPE=EPIC, STATUS=NEW, NAME=TestEpic1, DESCRIPTION=Epic ID should be = 2, " +
+                        "START_TIME=1970-01-01T00:00:00Z, DURATION=0, END_TIME=1970-01-01T00:00:00Z]",
                 manager.getHistory().toString());
     }
+    @Test
+    public void getPrioritizedTasks(){
+        manager.getTaskById(testTask.getId()).setStartTime(Instant.ofEpochMilli(1L));
+        manager.getEpicById(testEpic.getId()).setStartTime(Instant.ofEpochMilli(60_000L));
+        manager.getSubTaskById(testSubTask.getId()).setStartTime(Instant.ofEpochMilli(40_000L));
+        Assertions.assertNotNull(manager.getPrioritizedTasks());
+        Assertions.assertEquals(
+                "[ID=1, TYPE=TASK,STATUS=NEW, NAME=TestTaskName1, DESCRIPTION=Task ID should be = 1, " +
+                        "START_TIME=1970-01-01T00:00:00.001Z, DURATION=0, END_TIME=1970-01-01T00:00:00.001Z, " +
+                        "ID=3, TYPE=SUBTASK, STATUS = NEW, PARENT=2, NAME=TestSubTask1, DESCRIPTION=SubTask ID should be = 3, " +
+                        "START_TIME=1970-01-01T00:00:40Z, DURATION=0, END_TIME=1970-01-01T00:00:40Z, " +
+                        "ID=2, TYPE=EPIC, STATUS=NEW, NAME=TestEpic1, DESCRIPTION=Epic ID should be = 2, " +
+                        "START_TIME=1970-01-01T00:01:00Z, DURATION=0, END_TIME=1970-01-01T00:01:00Z]",
+                manager.getPrioritizedTasks().toString());
+    }
+
+    // todo clean the comments
+/*
+    @Test
+    public void taskCrossingTest(){
+        testTask.setStartTime(Instant.ofEpochMilli(0)); // Start time should be 0
+        testTask.setDuration(300_000L); // duration is 5 minutes for now (300_000MS)
+        testSubTask.setStartTime(Instant.ofEpochMilli(40_000L)); // startTime should be 0 + 300_000MS
+        testSubTask.setDuration(600_000L); // duration is 10 minute (600_000MS)
+        manager.calculateEpicDuration(manager.getEpicById(testEpic.getId()));
+        manager.checkTimeline();
+        Assertions.assertEquals(testTask.getEndTime(), testSubTask.getStartTime());
+    }
+*/
+
+    @Test
+    public void taskCrossingsTest(){
+        testTask.setStartTime(Instant.ofEpochMilli(0)); // Start time should be 0
+        testTask.setDuration(300_000L); // duration is 5 minutes for now (300_000MS)
+        Task wrongTask = new Task("Unbeatable task", "Task not to be registered");
+        wrongTask.setStartTime(Instant.ofEpochSecond(3));
+        Assertions.assertNull(manager.createTask(wrongTask));
+        SubTask testSubtask2 = manager.createSubTask(new SubTask(
+                "Right subtask",
+                "this subtask should be ok", 2));
+        testSubtask2.setStartTime(Instant.ofEpochMilli(300_001L));
+        testSubtask2.setDuration(600_000L);
+        Assertions.assertEquals(1,
+                manager.getSubTaskById(testSubtask2.getId()).getStartTime().
+                        minusMillis(manager.getTaskById(testTask.getId()).getDuration()).toEpochMilli());
+
+    }
 }
+
+

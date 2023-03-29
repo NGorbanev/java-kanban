@@ -7,6 +7,7 @@ import Issues.StatusList;
 import Issues.SubTask;
 import Issues.Task;
 import Utils.Managers;
+import Utils.TimeLineCrossingsException;
 
 import java.time.Instant;
 import java.util.*;
@@ -36,7 +37,7 @@ public class InMemoryTaskManager implements TaskManager {
         id = id + 1;
         return id;
     }
-
+/*
     public void checkTimeline() {
         TreeSet<Task> timeLine = getPrioritizedTasks();
         Iterator<Task> iterator = timeLine.iterator();
@@ -49,18 +50,26 @@ public class InMemoryTaskManager implements TaskManager {
             }
         }
     }
+*/
+    public boolean taskCrossingsCheck(Task task){
+        for (Task issue : getPrioritizedTasks()){
+            if (issue.getStartTime() != issue.getEndTime()) {
+                if (task.getStartTime().isAfter(issue.getStartTime()) &&
+                        task.getEndTime().isBefore(issue.getEndTime())) {
+                    throw new TimeLineCrossingsException("Пересечение с задачей ID=" + issue.getId());
+                }
+            }
+        }
+        return false;
+    }
+
 
     // new method for receiving tasks ordered by priority (based on StartTime)
     public TreeSet<Task> getPrioritizedTasks(){
-        TreeSet<Task> sortedIssues = new TreeSet<>(new Comparator<Task>() {
-            @Override
-            public int compare(Task o1, Task o2) {
-                if (o1.getStartTime() == null && o2.getStartTime() != null) return -1;
-                else if (o1.getStartTime() != null && o2.getStartTime() == null) return 1;
-                else if (o1.getStartTime() == null && o2.getStartTime() == null) return 0;
-                return o1.getStartTime().compareTo(o2.getStartTime());
-            }
-        });
+
+        // method was rewritten according review recommendations
+        TreeSet<Task> sortedIssues = new TreeSet<>(Comparator.comparing(Task::getStartTime));
+
         sortedIssues.addAll(taskList.values());
         sortedIssues.addAll(subtaskList.values());
         sortedIssues.addAll(epicList.values());
@@ -72,26 +81,48 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public Epic createEpic(String name, String description){
         Epic epic = new Epic(name, description, StatusList.NEW, generateId());
+        epic.setDuration(0L);
+        epic.setStartTime(Instant.ofEpochMilli(0));
         updateEpic(epic);
         return epic;
     }
 
     // epic duration calculation method
     public void calculateEpicDuration(Epic epic){
+
+        /**
+         * Method logic description.
+         * Limitations:
+         * - epic knows only ID's of it's subtasks. Without manager epic's endTime can't be calculated inside Epic class
+         * - field endTime is easier to leave as it is at Task class. The technical task s also contains:
+         * "EndTime() — время завершения задачи, которое рассчитывается исходя из startTime и duration.". It also contains
+         * text about need to work with Epic additionally, but seems that there is no really need to do such individual implemetation
+         * at Epic class level. Manager can manage it easily too.
+         *
+         * Realisation:
+         * 1. get all subtasks duration sum and set epic duration equals this sum. stDurations contains it.
+         * 2. Find out the start time - it should be equal to first subtask startTime. firstSubTaskStartTime contains it
+         * 3. Calculate epic duration by adding stDurations to firstSubTaskStartTime
+         *
+         * Result:
+         * 1. Epic endTime is still to be calculated, same as at Task / SubTask
+         * 2. Additional tests were added to calculateEpicDurationTest()
+         */
+
         ArrayList<Integer> subTaskList = epic.getSubTasks();
         Instant firstSubTaskStartTime = Instant.ofEpochMilli(0);
-        Long stDurations = 0L;
+        Instant lastSubTaskEndTime = Instant.ofEpochMilli(0);
         for (int i: subTaskList){
-            if (this.subtaskList.get(i).getDuration() == null) this.subtaskList.get(i).setDuration(0);
-            stDurations = stDurations + this.subtaskList.get(i).getDuration();
-            if (this.subtaskList.get(i).getStartTime() == null)
-                this.subtaskList.get(i).setStartTime(Instant.ofEpochMilli(0));
-            if (firstSubTaskStartTime.isBefore(this.subtaskList.get(i).getStartTime())){
+            if (firstSubTaskStartTime.isAfter(this.subtaskList.get(i).getStartTime())){
                 firstSubTaskStartTime = this.subtaskList.get(i).getStartTime();
+            }
+            if (lastSubTaskEndTime.isBefore(this.subtaskList.get(i).getEndTime())){
+                lastSubTaskEndTime = this.subtaskList.get(i).getEndTime();
             }
         }
         epicList.get(epic.getId()).setStartTime(firstSubTaskStartTime);
-        epicList.get(epic.getId()).setDuration((int) (stDurations/60_000));
+        epicList.get(epic.getId()).setDuration(lastSubTaskEndTime.toEpochMilli()
+                - firstSubTaskStartTime.toEpochMilli());
     }
 
     // method of epic status calculation in dependency of subtasks statuses
@@ -177,15 +208,37 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     // methods for Issues.SubTask class
+    // todo clean the comments
+    /*
     @Override
     public SubTask createSubTask(String name, String description, int parentEpic){
         Epic epic = getEpicById(parentEpic);
         SubTask subTask = new SubTask(name, description, StatusList.NEW, parentEpic, generateId());
         epic.addSubTaskToEpic(subTask);
         subTask.setParentEpic(parentEpic);
+        subTask.setStartTime(Instant.ofEpochMilli(0)); // added to guarantee not NULL value
+        subTask.setDuration(0L); // added to guarantee not NULL value
         subtaskList.put(subTask.getId(), subTask);
         calculateEpicDuration(epic);
         checkStatus(epic);
+        return subTask;
+    }
+*/
+    @Override
+    public SubTask createSubTask(SubTask subTask){
+        if (subTask == null) return null;
+        if (subTask.getParentEpicId() == 0) return null;
+        if (subTask.getStartTime() == null) subTask.setStartTime(Instant.ofEpochMilli(0));
+        if (subTask.getDuration() == null) subTask.setDuration(0L);
+        if (subTask.getStatus() == null) subTask.setStatus(StatusList.NEW);
+        try{
+            taskCrossingsCheck(subTask);
+        } catch (TimeLineCrossingsException ex){
+            return null;
+        }
+        subTask.setId(generateId());
+        updateSubTask(subTask);
+        linkSubTask(getEpicById(subTask.getParentEpicId()), subTask);
         return subTask;
     }
 
@@ -219,6 +272,7 @@ public class InMemoryTaskManager implements TaskManager {
         epic.addSubTaskToEpic(subTask);
         SubTask newChildSubtask = subTask;
         newChildSubtask.setParentEpic(epic.getId());
+        calculateEpicDuration(epic);
         updateSubTask(newChildSubtask);
     }
 
@@ -235,6 +289,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void updateSubTask(SubTask issue){
         subtaskList.put(issue.getId(), issue);
+        calculateEpicDuration(getEpicById(issue.getParentEpicId()));
         checkStatus(epicList.get(issue.getParentEpicId()));
     }
 
@@ -244,6 +299,7 @@ public class InMemoryTaskManager implements TaskManager {
         Epic epic = epicList.get(subTask.getParentEpicId());
         epic.unlinkSubtask(id);
         checkStatus(epic);
+        calculateEpicDuration(getEpicById(subTask.getParentEpicId()));
         updateEpic(epic);
         history.remove(id);
         subtaskList.remove(id);
@@ -262,15 +318,46 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     // methods for Issues.Task class
+
+    //todo clean the comments
+    /*
     @Override
     public Task createTask(String name, String description){
         Task task = new Task(name, description, StatusList.NEW, generateId());
+        task.setStartTime(Instant.ofEpochMilli(0));
+        task.setDuration(0L);
         taskList.put(task.getId(), task);
         return task;
     }
+    */
+    @Override
+    public Task createTask(Task task){
+        if (task != null) {
+            if (task.getStartTime() == null) task.setStartTime(Instant.ofEpochMilli(0));
+            if (task.getDuration() == null) task.setDuration(0L);
+            if (task.getStatus() == null) task.setStatus(StatusList.NEW);
+            try{
+                taskCrossingsCheck(task);
+            } catch (TimeLineCrossingsException exception) {
+                //System.out.println(this.getClass().getName() +" | " + task.getName() + ": " + exception.getMessage());
+                return null;
+            }
+            task.setId(generateId());
+            taskList.put(task.getId(), task);
+            return task;
+        }
+        else return null;
+    }
+
 
     @Override
     public void updateTask(Task task){
+        try{
+            taskCrossingsCheck(task);
+        } catch (TimeLineCrossingsException exception) {
+            System.out.println(exception.getMessage() + ". Задача ID=" + task.getId() + " не обновлена");
+            return;
+        }
         taskList.put(task.getId(), task);
     }
 

@@ -6,7 +6,6 @@ public class Task {
 
     private String name;
     private String description;
-    //private int status = 0;
     private StatusList status = StatusList.NEW;
     private int id;
     private Instant startTime;
@@ -14,6 +13,10 @@ public class Task {
 
 
     // bunch of constructors for all possible needed cases
+    public Task(String name, String description){
+        this.name = name;
+        this.description = description;
+    }
     public Task(String name, String description, StatusList status, int id){
         this.name = name;
         this.description = description;
@@ -93,7 +96,10 @@ public class Task {
                 "TYPE=" + IssueTypes.TASK + "," +
                 "STATUS=" + getStatus() + ", " +
                 "NAME=" + getName() + ", " +
-                "DESCRIPTION=" + getDescription();
+                "DESCRIPTION=" + getDescription() + ", " +
+                "START_TIME=" + getStartTime() + ", " +
+                "DURATION=" + getDuration() + ", " +
+                "END_TIME=" + getEndTime();
         return str;
     }
 
@@ -106,8 +112,8 @@ public class Task {
         return this.startTime;
     }
 
-    public void setDuration(int duration) {
-        this.duration = Long.valueOf(duration * 60_000); // recevie minutes, convert to mills, calculate duration
+    public void setDuration(Long duration) {
+        this.duration = duration;
     }
 
     public Long getDuration(){
