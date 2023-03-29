@@ -78,11 +78,24 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     // methods for Issues.Epic class
+    /* todo clean the comments
     @Override
     public Epic createEpic(String name, String description){
         Epic epic = new Epic(name, description, StatusList.NEW, generateId());
         epic.setDuration(0L);
         epic.setStartTime(Instant.ofEpochMilli(0));
+        updateEpic(epic);
+        return epic;
+    }
+    */
+
+    @Override
+    public Epic createEpic(Epic epic){
+        if (epic == null) return null;
+        epic.setDuration(0L);
+        epic.setStartTime(Instant.ofEpochMilli(0));
+        epic.setStatus(StatusList.NEW);
+        epic.setId(generateId());
         updateEpic(epic);
         return epic;
     }
@@ -208,8 +221,8 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     // methods for Issues.SubTask class
-    // todo clean the comments
-    /*
+
+    /*  todo clean the comments
     @Override
     public SubTask createSubTask(String name, String description, int parentEpic){
         Epic epic = getEpicById(parentEpic);

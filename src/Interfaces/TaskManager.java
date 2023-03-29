@@ -16,7 +16,9 @@ public interface TaskManager {
     public List<Task> getHistory();
 
     // methods of Issues.Epic class
-    public Epic createEpic(String name, String description);
+    //todo clean the comments
+    //public Epic createEpic(String name, String description);
+    public Epic createEpic(Epic epic);
 
     public List<Epic> getEpicList();
 

@@ -191,12 +191,22 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         super.setLastId(newId);
     }
 
+    /* todo clean the comments
     @Override
     public Epic createEpic(String name, String description){
         Epic epic = super.createEpic(name, description);
         save();
         return epic;
     }
+    */
+
+    @Override
+    public Epic createEpic(Epic epic){
+        Epic ep = super.createEpic(epic);
+        save();
+        return ep;
+    }
+
     @Override
     public void deleteAllEpics(){
         super.deleteAllEpics();

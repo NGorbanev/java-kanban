@@ -26,7 +26,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         //todo clean the comments
         //manager.createTask("TestTaskName1", "Task ID should be = 1");
         testTask = manager.createTask(new Task("TestTaskName1", "Task ID should be = 1"));
-        manager.createEpic("TestEpic1", "Epic ID should be = 2");
+        manager.createEpic(new Epic("TestEpic1", "Epic ID should be = 2"));
         testSubTask = manager.createSubTask(new SubTask(
                 "TestSubTask1",
                 "SubTask ID should be = 3",
@@ -305,9 +305,9 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
     @Test
     public void linkSubTaskTest(){
-        manager.createEpic(
+        manager.createEpic(new Epic(
                 "Epic ID 4",
-                "Here the subtask should be linked");
+                "Here the subtask should be linked"));
         manager.createSubTask(new SubTask(
                 "Subtask for testing linkSubTask()",
                 "This subtask should be linked to epic ID=5",

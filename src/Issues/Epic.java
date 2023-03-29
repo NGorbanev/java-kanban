@@ -8,6 +8,10 @@ public class Epic extends Task {
 
     // Epic duration comes from Task class. Duration calculation is implemented at InMemoryTaskManager with calculateEpicDuration method
     // bunch of constructors for all possible needed cases
+    public Epic(String name, String description){
+        super(name, description);
+    }
+
     public Epic(String name, String description, StatusList status, int id){
         super(name, description, status, id);
     }
