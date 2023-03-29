@@ -1,5 +1,5 @@
-import Interfaces.TaskManager;
-import Utils.Managers;
+import interfaces.TaskManager;
+import utils.Managers;
 
 public class InMemoryTaskManagerTest extends TaskManagerTest<TaskManager> {
     InMemoryTaskManagerTest() {

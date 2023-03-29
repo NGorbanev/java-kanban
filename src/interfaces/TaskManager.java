@@ -1,9 +1,9 @@
-package Interfaces;
+package interfaces;
 
-import Issues.Epic;
-import Issues.StatusList;
-import Issues.SubTask;
-import Issues.Task;
+import issues.Epic;
+import issues.StatusList;
+import issues.SubTask;
+import issues.Task;
 
 import java.util.HashMap;
 import java.util.List;
@@ -16,8 +16,6 @@ public interface TaskManager {
     public List<Task> getHistory();
 
     // methods of Issues.Epic class
-    //todo clean the comments
-    //public Epic createEpic(String name, String description);
     public Epic createEpic(Epic epic);
 
     public List<Epic> getEpicList();
@@ -33,8 +31,6 @@ public interface TaskManager {
     public void updateEpic(Epic issue);
 
     // methods of Issues.SubTask class
-    // todo clean the comments
-    //public SubTask createSubTask(String name, String description, int parentEpic);
     public SubTask createSubTask(SubTask subTask);
 
     public HashMap<Integer, SubTask> getSubtasks();
@@ -54,7 +50,6 @@ public interface TaskManager {
     public void deleteAllSubTasks();
 
     // methods of Issues.Task class
-    //public Task createTask(String name, String description);
     public Task createTask(Task task);
 
     public void updateTask(Task task);
@@ -69,9 +64,6 @@ public interface TaskManager {
     public List<Task> getTaskList();
 
     public void calculateEpicDuration(Epic testEpic);
-
-    // todo clean the comments
-    //public void checkTimeline();
 
     public TreeSet<Task> getPrioritizedTasks();
 }

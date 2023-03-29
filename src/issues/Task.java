@@ -1,4 +1,4 @@
-package Issues;
+package issues;
 
 import java.time.*;
 
@@ -121,6 +121,7 @@ public class Task {
     }
 
     public Instant getEndTime(){
+        if (this.startTime == null || this.duration == null) return Instant.ofEpochMilli(0);
         return Instant.ofEpochMilli(startTime.plusMillis(this.getDuration()).toEpochMilli());
     }
 }

@@ -1,9 +1,9 @@
-import Interfaces.TaskManager;
-import Issues.StatusList;
-import Issues.Task;
-import Issues.Epic;
-import Issues.SubTask;
-import Utils.Managers;
+import interfaces.TaskManager;
+import issues.StatusList;
+import issues.Task;
+import issues.Epic;
+import issues.SubTask;
+import utils.Managers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;

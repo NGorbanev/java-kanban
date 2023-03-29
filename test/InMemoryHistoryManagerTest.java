@@ -1,6 +1,6 @@
-import History.InMemoryHistoryManager;
-import Issues.StatusList;
-import Issues.Task;
+import history.InMemoryHistoryManager;
+import issues.StatusList;
+import issues.Task;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

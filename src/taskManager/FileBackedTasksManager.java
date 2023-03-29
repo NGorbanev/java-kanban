@@ -1,7 +1,7 @@
-package TaskManager;
+package taskManager;
 
-import Issues.*;
-import Utils.ManagerSaveException;
+import issues.*;
+import utils.ManagerSaveException;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -87,7 +87,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                         Instant epicStartDate = Instant.parse(line[5]);
                         int epicDuration = Integer.parseInt(line[6]);
                         Epic epic = new Epic(line[2], line[4], status, index, epicStartDate, epicDuration);
-                        epicList.put(index,epic);
+                        epicList.put(index,epic); // epic goes with id=2 as expected
                         break;
                     case "SUBTASK":
                         if (line[5].equals("null")) line[5] = Instant.ofEpochMilli(0).toString();
@@ -97,7 +97,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                         Instant subTaskStartDate = Instant.parse(line[5]);
                         int subTaskDuration = Integer.parseInt(line[6]);
                         SubTask subTask = new SubTask(line[2], line[4], status, parentEpicId, index, subTaskStartDate, subTaskDuration);
-                        parentEpic.addSubTaskToEpic(subTask);
+                        parentEpic.addSubTaskToEpic(subTask); // epic ID is 2. The query is looking for an epic with id=2. Seems to be ok here
                         subTask.setParentEpic(parentEpic.getId());
                         subtaskList.put(index, subTask);
                         epicList.put(parentEpicId, parentEpic);
@@ -191,15 +191,6 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         super.setLastId(newId);
     }
 
-    /* todo clean the comments
-    @Override
-    public Epic createEpic(String name, String description){
-        Epic epic = super.createEpic(name, description);
-        save();
-        return epic;
-    }
-    */
-
     @Override
     public Epic createEpic(Epic epic){
         Epic ep = super.createEpic(epic);
@@ -231,15 +222,6 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     // SubTask
-    // todo clean the comments
-    /*
-    @Override
-    public SubTask createSubTask(String name, String description, int parentEpic){
-        SubTask st = super.createSubTask(name, description, parentEpic);
-        save();
-        return st;
-    }
-    */
 
     @Override
     public SubTask createSubTask(SubTask subTask){
@@ -279,15 +261,6 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     // Task
-    //todo clean the comments
-    /*
-    @Override
-    public Task createTask(String name, String description){
-        Task t = super.createTask(name, description);
-        save();
-        return t;
-    }
-    */
     @Override
     public Task createTask(Task task){
         Task t = super.createTask(task);

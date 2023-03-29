@@ -1,10 +1,9 @@
-package Utils;
+package utils;
 
-import History.InMemoryHistoryManager;
-import Interfaces.HistoryManager;
-import Interfaces.TaskManager;
-import TaskManager.InMemoryTaskManager;
-import TaskManager.FileBackedTasksManager;
+import history.InMemoryHistoryManager;
+import interfaces.HistoryManager;
+import interfaces.TaskManager;
+import taskManager.InMemoryTaskManager;
 
 public class Managers {
 

@@ -1,4 +1,4 @@
-package Utils;
+package utils;
 
 public class TimeLineCrossingsException extends RuntimeException {
     public TimeLineCrossingsException(String message){

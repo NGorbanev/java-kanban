@@ -1,7 +1,7 @@
-package History;
+package history;
 
-import Interfaces.HistoryManager;
-import Issues.Task;
+import interfaces.HistoryManager;
+import issues.Task;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

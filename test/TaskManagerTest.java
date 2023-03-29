@@ -1,17 +1,15 @@
-import Interfaces.TaskManager;
-import Issues.Epic;
-import Issues.StatusList;
-import Issues.SubTask;
-import Issues.Task;
+import interfaces.TaskManager;
+import issues.Epic;
+import issues.StatusList;
+import issues.SubTask;
+import issues.Task;
 
 import java.time.Instant;
 import java.util.HashMap;
 
-import Utils.TimeLineCrossingsException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
 
 
 public abstract class TaskManagerTest<T extends TaskManager> {
@@ -23,39 +21,20 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
     @BeforeEach
     public void createIssues() {
-        //todo clean the comments
-        //manager.createTask("TestTaskName1", "Task ID should be = 1");
         testTask = manager.createTask(new Task("TestTaskName1", "Task ID should be = 1"));
         manager.createEpic(new Epic("TestEpic1", "Epic ID should be = 2"));
         testSubTask = manager.createSubTask(new SubTask(
                 "TestSubTask1",
                 "SubTask ID should be = 3",
                 2));
-
-
-
-        /* todo clean the comments
-        manager.createSubTask(
-                "TestSubTask1",
-                "SubTask ID should be = 3",
-                2);
-        testSubTask = manager.getSubtaskList().get(0);
-        */
         testEpic = manager.getEpicList().get(0);
-        //testTask = manager.getTaskList().get(0);
+
 
     }
 
     // Epic's methods
     @Test
     public void calculateEpicDurationTest(){
-        /* todo clean the comments
-        SubTask testSubTask2 = manager.createSubTask(
-                "TestSubTask2",
-                "Needed for duration test",
-                2
-        );
-        */
         SubTask testSubTask2 = manager.createSubTask(new SubTask(
                 "TestSubTask2", "Needed for duration test",2));
 
@@ -486,20 +465,6 @@ public abstract class TaskManagerTest<T extends TaskManager> {
                         "START_TIME=1970-01-01T00:01:00Z, DURATION=0, END_TIME=1970-01-01T00:01:00Z]",
                 manager.getPrioritizedTasks().toString());
     }
-
-    // todo clean the comments
-/*
-    @Test
-    public void taskCrossingTest(){
-        testTask.setStartTime(Instant.ofEpochMilli(0)); // Start time should be 0
-        testTask.setDuration(300_000L); // duration is 5 minutes for now (300_000MS)
-        testSubTask.setStartTime(Instant.ofEpochMilli(40_000L)); // startTime should be 0 + 300_000MS
-        testSubTask.setDuration(600_000L); // duration is 10 minute (600_000MS)
-        manager.calculateEpicDuration(manager.getEpicById(testEpic.getId()));
-        manager.checkTimeline();
-        Assertions.assertEquals(testTask.getEndTime(), testSubTask.getStartTime());
-    }
-*/
 
     @Test
     public void taskCrossingsTest(){

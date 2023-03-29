@@ -1,4 +1,4 @@
-package Issues;
+package issues;
 
 public enum IssueTypes {
     EPIC,
