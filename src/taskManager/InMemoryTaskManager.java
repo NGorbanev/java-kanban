@@ -38,11 +38,13 @@ public class InMemoryTaskManager implements TaskManager {
         return id;
     }
 
-    public boolean taskCrossingsCheck(Task task){
+    private boolean taskCrossingsCheck(Task task){
         for (Task issue : getPrioritizedTasks()){
             if (issue.getStartTime() != issue.getEndTime()) {
-                if (task.getStartTime().isAfter(issue.getStartTime()) &&
-                        task.getEndTime().isBefore(issue.getEndTime())) {
+                if ((task.getStartTime().isAfter(issue.getStartTime()) ||
+                        task.getStartTime().equals(issue.getStartTime())) &&
+                        (task.getEndTime().isBefore(issue.getEndTime()) ||
+                                task.getEndTime().equals(issue.getEndTime()))) {
                     throw new TimeLineCrossingsException("Пересечение с задачей ID=" + issue.getId());
                 }
             }
@@ -59,8 +61,6 @@ public class InMemoryTaskManager implements TaskManager {
 
         sortedIssues.addAll(taskList.values());
         sortedIssues.addAll(subtaskList.values());
-        sortedIssues.addAll(epicList.values());
-
         return sortedIssues;
     }
 
@@ -80,32 +80,32 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     // epic duration calculation method
-    public void calculateEpicDuration(Epic epic){
-
-        /**
-         * Method logic description.
-         * Limitations:
-         * - epic knows only ID's of it's subtasks. Without manager epic's endTime can't be calculated inside Epic class
-         * - field endTime is easier to leave as it is at Task class. The sprint technical task s also contains:
-         * "EndTime() — время завершения задачи, которое рассчитывается исходя из startTime и duration.". It also contains
-         * text about need to work with Epic additionally, but seems that there is no really need to do such individual implementation
-         * at Epic class level. Manager can manage it easily.
-         *
-         * Realisation:
-         * 1. get start time of a first subtask
-         * 2. get end time of a last subtask
-         * 3. Duration would make a difference between start time of first subtask and end time of the last one
-         * 4. As we don't save endDate of Task and Epic as well, the epic should only have start time and duration.
-         * End time of epic should be calculated every time, but it will always be equal to last subtask end time
-         *
-         * Result:
-         * 1. Epic endTime is still can be calculated, using same as at Task / SubTask logic
-         * 2. Additional unit tests were added to calculateEpicDurationTest()
-         */
+    /**
+     * Method logic description.
+     * Limitations:
+     * - epic knows only ID's of it's subtasks. Without manager epic's endTime can't be calculated inside Epic class
+     * - field endTime is easier to leave as it is at Task class. The sprint technical task s also contains:
+     * "EndTime() — время завершения задачи, которое рассчитывается исходя из startTime и duration.". It also contains
+     * text about need to work with Epic additionally, but seems that there is no really need to do such individual implementation
+     * at Epic class level. Manager can manage it easily.
+     *
+     * Realisation:
+     * 1. get start time of a first subtask
+     * 2. get end time of a last subtask
+     * 3. Duration would make a difference between start time of first subtask and end time of the last one
+     * 4. As we don't save endDate of Task and Epic as well, the epic should only have start time and duration.
+     * End time of epic should be calculated every time, but it will always be equal to last subtask end time
+     *
+     * Result:
+     * 1. Epic endTime is still can be calculated, using same as at Task / SubTask logic
+     * 2. Additional unit tests were added to calculateEpicDurationTest()
+     */
+    private void calculateEpicDuration(Epic epic){
 
         ArrayList<Integer> subTaskList = epic.getSubTasks();
         Instant firstSubTaskStartTime = Instant.ofEpochMilli(0);
         Instant lastSubTaskEndTime = Instant.ofEpochMilli(0);
+        Long subTasksDuration = 0L;
         for (int i: subTaskList){
             if (firstSubTaskStartTime.isAfter(this.subtaskList.get(i).getStartTime())){
                 firstSubTaskStartTime = this.subtaskList.get(i).getStartTime();
@@ -113,10 +113,10 @@ public class InMemoryTaskManager implements TaskManager {
             if (lastSubTaskEndTime.isBefore(this.subtaskList.get(i).getEndTime())){
                 lastSubTaskEndTime = this.subtaskList.get(i).getEndTime();
             }
+            subTasksDuration = subTasksDuration + this.subtaskList.get(i).getDuration();
         }
         epicList.get(epic.getId()).setStartTime(firstSubTaskStartTime);
-        epicList.get(epic.getId()).setDuration(lastSubTaskEndTime.toEpochMilli()
-                - firstSubTaskStartTime.toEpochMilli());
+        epicList.get(epic.getId()).setDuration(subTasksDuration);
     }
 
     // method of epic status calculation in dependency of subtasks statuses
@@ -212,13 +212,7 @@ public class InMemoryTaskManager implements TaskManager {
         if (subTask.getDuration() == null) subTask.setDuration(0L);
         if (subTask.getStatus() == null) subTask.setStatus(StatusList.NEW);
         // ex-timeline check
-        try{
             taskCrossingsCheck(subTask);
-        } catch (TimeLineCrossingsException ex){
-
-            return null;
-        }
-        // if everything is ok - generate ID and register issue at the manager
         subTask.setId(generateId());
         updateSubTask(subTask);
         linkSubTask(getEpicById(subTask.getParentEpicId()), subTask);
@@ -310,12 +304,7 @@ public class InMemoryTaskManager implements TaskManager {
             if (task.getDuration() == null) task.setDuration(0L);
             if (task.getStatus() == null) task.setStatus(StatusList.NEW);
             // ex checkTimeLine
-            try{
-                taskCrossingsCheck(task);
-            } catch (TimeLineCrossingsException exception) {
-                //System.out.println(this.getClass().getName() +" | " + task.getName() + ": " + exception.getMessage());
-                return null;
-            }
+            taskCrossingsCheck(task);
             // if everything is ok - generate ID and register issue at the manager
             task.setId(generateId());
             taskList.put(task.getId(), task);
@@ -327,12 +316,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void updateTask(Task task){
-        try{
-            taskCrossingsCheck(task);
-        } catch (TimeLineCrossingsException exception) {
-            System.out.println(exception.getMessage() + ". Задача ID=" + task.getId() + " не обновлена");
-            return;
-        }
+        taskCrossingsCheck(task);
         taskList.put(task.getId(), task);
     }
 

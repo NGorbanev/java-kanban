@@ -63,7 +63,7 @@ public interface TaskManager {
     public void deleteTaskById(int id);
     public List<Task> getTaskList();
 
-    public void calculateEpicDuration(Epic testEpic);
+    //private void calculateEpicDuration(Epic testEpic);
 
     public TreeSet<Task> getPrioritizedTasks();
 }

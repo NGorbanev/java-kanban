@@ -27,7 +27,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     // saving to file
     public void save() {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(path.toString()))) {
-            bw.write("id,type,name,status,description,startDate,duration,parentEpic\n");
+            bw.write("id,type,name,status,description,startDate,duration,parentEpic" + System.lineSeparator());
 
             // saving epics
             for (Task epic: epicList.values()){
@@ -216,10 +216,10 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         save();
     }
 
-    @Override
-    public void calculateEpicDuration(Epic epic){
-        super.calculateEpicDuration(epic);
-    }
+    //@Override
+    //public void calculateEpicDuration(Epic epic){
+    //    super.calculateEpicDuration(epic);
+    //}
 
     // SubTask
 
