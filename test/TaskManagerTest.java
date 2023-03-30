@@ -4,7 +4,7 @@ import issues.StatusList;
 import issues.SubTask;
 import issues.Task;
 
-import java.time.Instant;
+import java.time.*;
 import java.util.HashMap;
 
 import org.junit.jupiter.api.Assertions;
@@ -153,6 +153,21 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         Assertions.assertEquals(1, manager.getHistory().size());
 
     }
+
+    @Test
+    public void epicDurationTest(){
+        SubTask secondSubTask = manager.createSubTask(new SubTask(
+                "ST For epDurTest",
+                "testSubtask",
+                StatusList.NEW,
+                2,
+                0,
+                Instant.ofEpochSecond(900),
+                150));
+        Epic e = manager.getEpicById(2);
+        Assertions.assertEquals(secondSubTask.getEndTime(), e.getEndTime());
+    }
+
     @Test
     public void subTaskTestingUnit(){
         Assertions.assertEquals(
@@ -201,6 +216,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         Assertions.assertEquals(0, manager.getEpicList().size()); // case with empty list
         Assertions.assertNull(manager.getEpicById(100)); // requesting non-existing issue
     }
+
     @Test
     public void getAllSubtasksByEpicIdTest(){
         // standart case
@@ -490,6 +506,15 @@ public abstract class TaskManagerTest<T extends TaskManager> {
                         minusMillis(manager.getTaskById(testTask.getId()).getDuration()).toEpochMilli());
 
     }
+
+    @Test
+    public void testIntersection() {
+        Instant now = LocalDateTime.of(LocalDate.now().plusYears(1), LocalTime.of(0, 0, 0)).toInstant(ZoneOffset.UTC);
+        Task task1 = manager.createTask(new Task("task 1", "", StatusList.NEW, 0, now, 60));
+        Task task2 = manager.createTask(new Task("task 2", "", StatusList.NEW, 0, task1.getStartTime().plusSeconds(-1800), 60));
+        Assertions.assertTrue(task2.getEndTime().isAfter(task1.getStartTime()) && task2.getEndTime().isBefore(task1.getEndTime()));
+    }
+
 }
 
 

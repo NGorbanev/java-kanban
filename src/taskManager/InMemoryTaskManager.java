@@ -117,6 +117,7 @@ public class InMemoryTaskManager implements TaskManager {
         }
         epicList.get(epic.getId()).setStartTime(firstSubTaskStartTime);
         epicList.get(epic.getId()).setDuration(subTasksDuration);
+        epicList.get(epic.getId()).setEndTime(lastSubTaskEndTime);
     }
 
     // method of epic status calculation in dependency of subtasks statuses
@@ -212,7 +213,7 @@ public class InMemoryTaskManager implements TaskManager {
         if (subTask.getDuration() == null) subTask.setDuration(0L);
         if (subTask.getStatus() == null) subTask.setStatus(StatusList.NEW);
         // ex-timeline check
-            taskCrossingsCheck(subTask);
+        taskCrossingsCheck(subTask);
         subTask.setId(generateId());
         updateSubTask(subTask);
         linkSubTask(getEpicById(subTask.getParentEpicId()), subTask);

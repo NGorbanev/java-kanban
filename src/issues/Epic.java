@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class Epic extends Task {
+
+    private Instant endTime;
     private ArrayList<Integer> subTasksList = new ArrayList<>();
 
     // Epic duration comes from Task class. Duration calculation is implemented at InMemoryTaskManager with calculateEpicDuration method
@@ -39,6 +41,15 @@ public class Epic extends Task {
         super.setStatus(newStatus);
     }
 
+    public void setEndTime(Instant endTime) {
+        this.endTime = endTime;
+    }
+
+    @Override
+    public Instant getEndTime(){
+        return this.endTime;
+    }
+
     public void addSubTaskToEpic(SubTask subTask){
         if(!subTasksList.contains(subTask.getId())){
             subTasksList.add(subTask.getId());
@@ -71,4 +82,7 @@ public class Epic extends Task {
                 "END_TIME=" + getEndTime();
         return str;
     }
+
+
+
 }

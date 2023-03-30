@@ -42,7 +42,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                 bw.write(converter.convertToString(task) + System.lineSeparator());
             }
             // saving history
-            bw.write("\n");
+            bw.write(System.lineSeparator());
             for (Task item: history.getHistory()){
                 bw.write(item.getId() + ",");
             }
