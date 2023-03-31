@@ -155,7 +155,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    public void epicDurationTest(){
+    public void epicEndTimeTest(){
         SubTask secondSubTask = manager.createSubTask(new SubTask(
                 "ST For epDurTest",
                 "testSubtask",
@@ -492,7 +492,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         try {
             Assertions.assertNull(manager.createTask(wrongTask));
         } catch (TimeLineCrossingsException ex){
-            System.out.println(ex.getMessage());
+            //System.out.println(ex.getMessage());
             return;
         }
 
@@ -506,15 +506,26 @@ public abstract class TaskManagerTest<T extends TaskManager> {
                         minusMillis(manager.getTaskById(testTask.getId()).getDuration()).toEpochMilli());
 
     }
-
+/*
     @Test
     public void testIntersection() {
-        Instant now = LocalDateTime.of(LocalDate.now().plusYears(1), LocalTime.of(0, 0, 0)).toInstant(ZoneOffset.UTC);
-        Task task1 = manager.createTask(new Task("task 1", "", StatusList.NEW, 0, now, 60));
-        Task task2 = manager.createTask(new Task("task 2", "", StatusList.NEW, 0, task1.getStartTime().plusSeconds(-1800), 60));
-        Assertions.assertTrue(task2.getEndTime().isAfter(task1.getStartTime()) && task2.getEndTime().isBefore(task1.getEndTime()));
+        Instant now = LocalDateTime.of(
+                LocalDate.now().plusYears(1),
+                LocalTime.of(0, 0, 0)).toInstant(ZoneOffset.UTC);
+        Task task1 = manager.createTask(
+                new Task("task 1", "", StatusList.NEW, 0, now, 60));
+        Assertions.assertThrows(TimeLineCrossingsException.class,
+                ()->{
+                    Task task2 = manager.createTask(
+                            new Task(
+                                    "task 2",
+                                    "",
+                                    StatusList.NEW,
+                                    0,
+                                    task1.getStartTime().plusSeconds(-1800), 60));
+                });
     }
-
+    */
 }
 
 

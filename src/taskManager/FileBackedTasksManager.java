@@ -87,6 +87,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                         Instant epicStartDate = Instant.parse(line[5]);
                         int epicDuration = Integer.parseInt(line[6]);
                         Epic epic = new Epic(line[2], line[4], status, index, epicStartDate, epicDuration);
+                        epic.setEndTime(Instant.parse(line[8]));
                         epicList.put(index,epic); // epic goes with id=2 as expected
                         break;
                     case "SUBTASK":
@@ -168,7 +169,9 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                         ((Epic) issue).getStatus() + "," +
                         ((Epic) issue).getDescription() + "," +
                         ((Epic) issue).getStartTime() + "," +
-                        ((Epic) issue).getDuration();
+                        ((Epic) issue).getDuration() +
+                        ",none," +
+                        ((Epic) issue).getEndTime();
                 return output;
             } else if (issue instanceof Task){
                 String output = ((Task) issue).getId() + "," +

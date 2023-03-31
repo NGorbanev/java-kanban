@@ -41,15 +41,16 @@ public class InMemoryTaskManager implements TaskManager {
     private boolean taskCrossingsCheck(Task task){
         for (Task issue : getPrioritizedTasks()){
             if (issue.getStartTime() != issue.getEndTime()) {
-                if ((task.getStartTime().isAfter(issue.getStartTime()) ||
-                        task.getStartTime().equals(issue.getStartTime())) &&
-                        (task.getEndTime().isBefore(issue.getEndTime()) ||
-                                task.getEndTime().equals(issue.getEndTime()))) {
-                    throw new TimeLineCrossingsException("Пересечение с задачей ID=" + issue.getId());
-                }
+                if ((task.getStartTime().isBefore(issue.getStartTime()) && task.getEndTime().isBefore(issue.getStartTime()) ||
+                        task.getStartTime().isAfter(issue.getEndTime()))) {
+                    return false;
+                } else throw new TimeLineCrossingsException(
+                        "Пересечение задач:\n" +
+                                "ID=" + task.getId() + " Начало: " + task.getStartTime() + " Конец: " + task.getEndTime() +"\n" +
+                                "ID=" + issue.getId() + " Начало: " + issue.getStartTime() + " Конец: " + issue.getEndTime());
             }
         }
-        return false;
+        return true;
     }
 
 
