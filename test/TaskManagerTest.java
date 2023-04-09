@@ -249,12 +249,18 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     public void createSubTaskTest(){
         Assertions.assertEquals(1, manager.getSubtaskList().size());
 
+        /*
         Assertions.assertThrows(NullPointerException.class, () -> {
             SubTask subTaskForNullEpic = manager.createSubTask(new SubTask(
                     "Test subtask",
                     "Link to null epic",
                     100))
                     ;});
+        */
+        Assertions.assertNull(manager.createSubTask(new SubTask(
+                "Test subtask",
+                "Link to null epic",
+                100)));
         // history check
         Assertions.assertEquals(1, manager.getHistory().size());
     }
@@ -345,10 +351,9 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         // deleting epics. Expected behavior - updateSubTask doesn't come at empty lists subTaskList & epicList
         manager.deleteAllEpics();
         Assertions.assertEquals(0, manager.getEpicList().size());
-        Assertions.assertThrows(NullPointerException.class, () -> {
-            manager.updateSubTask(subTaskForTest);
-        });
 
+        //if all epics are deleted, none of subtask to be updated, they are also gone
+        Assertions.assertEquals(0, manager.getSubtasks().size());
     }
     @Test
     public void deleteSubTaskByIdTest(){

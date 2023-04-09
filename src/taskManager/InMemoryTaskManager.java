@@ -159,6 +159,7 @@ public class InMemoryTaskManager implements TaskManager {
         for (Epic epic: epicList.values()){
             deleteEpicById(epic.getId());
         }
+        if (subtaskList.size()>0) subtaskList.clear();
     }
 
     @Override

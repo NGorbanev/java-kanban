@@ -23,6 +23,10 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         loadFromFile(file);
     }
 
+    public FileBackedTasksManager(){
+
+    }
+
     // own methods
     // saving to file
     public void save() {

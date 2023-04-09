@@ -16,7 +16,7 @@ public class HttpTaskServer {
     //TaskManager manager = Managers.getFileBacked("./src/data/SavedData.csv");
     TaskManager manager = Managers.getDefault();
 
-    public HttpTaskServer() throws IOException {
+    public HttpTaskServer() throws IOException, InterruptedException {
         this.server = HttpServer.create(new InetSocketAddress(PORT), 0);
         server.createContext("/tasks/", new GroupHandler(manager));
         server.createContext("/tasks/task", new TaskHandler(manager));
