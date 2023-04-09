@@ -1,32 +1,13 @@
+import api.HttpTaskServer;
+
+import java.io.IOException;
+
 public class Main {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException, InterruptedException {
+        HttpTaskServer ts = new HttpTaskServer();
+        ts.startServer();
+        //ts.stopServer();
 
-        //TaskManager taskManager = Managers.getDefault();
-        //TaskManager taskManager = Managers.getFileBaked(
-        //        "./src/Data/SavedData.csv");
-
-        //SubTask st = taskManager.getSubTaskById(100);
-        //System.out.println(st.toString());
-/*
-        System.out.println("Загружена история: ");
-        //System.out.println(taskManager.getHistory());
-        for (Task item: taskManager.getHistory()){
-            System.out.println("- " + item.toString());
-        }
-        System.out.println("\n");
-
-        System.out.println("Что попало из файла в программу: ");
-        for (Task issue: taskManager.getEpicList()){
-            System.out.println(issue.toString());
-        }
-        for (Task issue: taskManager.getTaskList()){
-            System.out.println(issue.toString());
-        }
-        for (Task issue: taskManager.getSubtaskList()){
-            System.out.println(issue.toString());
-        }
-
-         */
     }
 }

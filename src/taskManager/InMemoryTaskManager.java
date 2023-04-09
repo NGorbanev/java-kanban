@@ -45,9 +45,9 @@ public class InMemoryTaskManager implements TaskManager {
                         task.getStartTime().isAfter(issue.getEndTime()))) {
                     return false;
                 } else throw new TimeLineCrossingsException(
-                        "Пересечение задач:\n" +
-                                "ID=" + task.getId() + " Начало: " + task.getStartTime() + " Конец: " + task.getEndTime() +"\n" +
-                                "ID=" + issue.getId() + " Начало: " + issue.getStartTime() + " Конец: " + issue.getEndTime());
+                        "Task crossings check failure:\n" +
+                                "ID=" + task.getId() + " Start: " + task.getStartTime() + " End: " + task.getEndTime() +"\n" +
+                                "ID=" + issue.getId() + " Start: " + issue.getStartTime() + " End: " + issue.getEndTime());
             }
         }
         return true;
@@ -210,6 +210,7 @@ public class InMemoryTaskManager implements TaskManager {
         if (subTask == null) return null;
         // a few tests for not having NULL at key fields
         if (subTask.getParentEpicId() == 0) return null;
+        if (getEpicById(subTask.getParentEpicId()) == null) return null; // check for not-existent epic
         if (subTask.getStartTime() == null) subTask.setStartTime(Instant.ofEpochMilli(0));
         if (subTask.getDuration() == null) subTask.setDuration(0L);
         if (subTask.getStatus() == null) subTask.setStatus(StatusList.NEW);
@@ -267,6 +268,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void updateSubTask(SubTask issue){
+        if (getEpicById(issue.getParentEpicId()) == null) return;
         subtaskList.put(issue.getId(), issue);
         calculateEpicDuration(getEpicById(issue.getParentEpicId()));
         checkStatus(epicList.get(issue.getParentEpicId()));

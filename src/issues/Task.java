@@ -45,7 +45,7 @@ public class Task {
         this.status = status;
         this.id = id;
         this.startTime = startTime;
-        this.duration = Long.valueOf(dur * 60_000);
+        this.duration = Long.valueOf(dur);
     }
     public Task(){}
 
