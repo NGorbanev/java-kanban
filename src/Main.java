@@ -18,5 +18,6 @@ public class Main {
         // API launch
         HttpTaskServer ts = new HttpTaskServer(manager);
         ts.startServer();
+
     }
 }
