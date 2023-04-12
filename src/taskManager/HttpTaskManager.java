@@ -1,5 +1,6 @@
 package taskManager;
 
+import api.HttpTaskServer;
 import api.adapters.InstantAdapter;
 import com.google.gson.*;
 import issues.Epic;
@@ -10,6 +11,7 @@ import utils.KVTaskClient;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 public class HttpTaskManager extends FileBackedTasksManager {
 
@@ -20,12 +22,18 @@ public class HttpTaskManager extends FileBackedTasksManager {
     private final String historyKey = "history";
 
     private KVTaskClient client;
+    String serverURL;
 
     private Gson json = new GsonBuilder().registerTypeAdapter(Instant.class, new InstantAdapter()).create();
 
     public HttpTaskManager(String serverURL) throws IOException, InterruptedException {
+        this.serverURL = serverURL;
         client = new KVTaskClient(serverURL);
         loadData();
+    }
+
+    public void updateClientToken() throws IOException, InterruptedException {
+        client = client = new KVTaskClient(this.serverURL);
     }
 
     public void loadData() throws IOException, InterruptedException {
@@ -75,14 +83,19 @@ public class HttpTaskManager extends FileBackedTasksManager {
     @Override
     public void save(){
         try {
+            client.put(historyKey, json.toJson(getHistory()
+                    .stream()
+                    .map(Task::getId)
+                    .collect(Collectors.toList())));
             client.put(tasksKey, json.toJson(taskList.values()));
             client.put(epicsKey, json.toJson(epicList.values()));
             client.put(subTasksKey, json.toJson(subtaskList.values()));
-            ArrayList<Integer> historyItemsIDs = new ArrayList<>();
-            for (Task issue : history.getHistory()){
-                historyItemsIDs.add(issue.getId());
-            }
-            client.put(historyKey, json.toJson(historyItemsIDs));
+
+            //ArrayList<Integer> historyItemsIDs = new ArrayList<>();
+            //for (Task issue : history.getHistory()){
+            //    historyItemsIDs.add(issue.getId());
+            //}
+            //client.put(historyKey, json.toJson(historyItemsIDs));
         } catch (IOException | InterruptedException e){
             System.out.println("Save data fail");
         }

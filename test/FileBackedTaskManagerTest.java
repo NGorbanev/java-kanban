@@ -1,3 +1,4 @@
+import org.junit.jupiter.api.BeforeEach;
 import taskManager.FileBackedTasksManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -13,6 +14,11 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTasksMa
 
     FileBackedTaskManagerTest(){
         manager = new FileBackedTasksManager(path.toString());
+    }
+
+    @BeforeEach
+    public void start(){
+        createIssues();
     }
 
     @AfterEach

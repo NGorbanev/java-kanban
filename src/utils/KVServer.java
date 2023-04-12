@@ -29,7 +29,7 @@ public class KVServer {
 
 	private void load(HttpExchange h) throws IOException{
 		try {
-			System.out.print(this.getClass().getSimpleName() + ": /load" + h.getRequestURI() + " ... ");
+			System.out.print(this.getClass().getSimpleName() + ": /load" + " ... ");
 			if (!hasAuth(h)) {
 				System.out.println("Запрос неавторизован, нужен параметр в query API_TOKEN со значением апи-ключа");
 				h.sendResponseHeaders(403, 0);
@@ -43,7 +43,7 @@ public class KVServer {
 					return;
 				}
 				if (data.get(key) == null){
-					System.out.println("Данные не найдены на сервере");
+					System.out.print("Данные не найдены на сервере");
 					h.sendResponseHeaders(404,0);
 					return;
 				}
@@ -61,7 +61,7 @@ public class KVServer {
 
 	private void save(HttpExchange h) throws IOException {
 		try {
-			System.out.println(this.getClass().getSimpleName() + ": /save" + h.getRequestURI() + " ... ");
+			//System.out.println(this.getClass().getSimpleName() + ": /save ... ");
 			if (!hasAuth(h)) {
 				System.out.println("Запрос неавторизован, нужен параметр в query API_TOKEN со значением апи-ключа");
 				h.sendResponseHeaders(403, 0);
@@ -81,7 +81,7 @@ public class KVServer {
 					return;
 				}
 				data.put(key, value);
-				System.out.println("Значение для ключа " + key + " успешно обновлено!");
+				//System.out.println("Значение для ключа " + key + " успешно обновлено!");
 				h.sendResponseHeaders(200, 0);
 			} else {
 				System.out.println("/save ждёт POST-запрос, а получил: " + h.getRequestMethod());
@@ -111,6 +111,11 @@ public class KVServer {
 		System.out.println(this.getClass().getSimpleName() + ": Открой в браузере http://localhost:" + PORT + "/");
 		System.out.println(this.getClass().getSimpleName() + ": API_TOKEN: " + apiToken);
 		server.start();
+	}
+
+	public void stop(){
+		server.stop(0);
+		System.out.println(this.getClass().getSimpleName() + ": stopped");
 	}
 
 	private String generateApiToken() {

@@ -2,7 +2,6 @@ package api;
 
 import com.sun.net.httpserver.HttpServer;
 import interfaces.TaskManager;
-import utils.Managers;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -14,9 +13,11 @@ public class HttpTaskServer {
     HttpServer server;
 
     //TaskManager manager = Managers.getFileBacked("./src/data/SavedData.csv");
-    TaskManager manager = Managers.getDefault();
+    //TaskManager manager = Managers.getDefault();
+    TaskManager manager;
 
-    public HttpTaskServer() throws IOException, InterruptedException {
+    public HttpTaskServer(TaskManager manager) throws IOException, InterruptedException {
+        this.manager = manager;
         this.server = HttpServer.create(new InetSocketAddress(PORT), 0);
         server.createContext("/tasks/", new GroupHandler(manager));
         server.createContext("/tasks/task", new TaskHandler(manager));

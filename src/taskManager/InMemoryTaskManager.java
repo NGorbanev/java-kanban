@@ -74,6 +74,7 @@ public class InMemoryTaskManager implements TaskManager {
         epic.setDuration(0L);
         epic.setStartTime(Instant.ofEpochMilli(0));
         epic.setStatus(StatusList.NEW);
+        epic.setEndTime(Instant.ofEpochMilli(0));
         // if everything is ok - generate ID and register issue at the manager
         epic.setId(generateId());
         updateEpic(epic);
@@ -321,7 +322,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void updateTask(Task task){
-        taskCrossingsCheck(task);
+        //taskCrossingsCheck(task);
         taskList.put(task.getId(), task);
     }
 
