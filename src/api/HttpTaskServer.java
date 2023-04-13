@@ -11,9 +11,6 @@ public class HttpTaskServer {
 
     private final int PORT = 8080;
     HttpServer server;
-
-    //TaskManager manager = Managers.getFileBacked("./src/data/SavedData.csv");
-    //TaskManager manager = Managers.getDefault();
     TaskManager manager;
 
     public HttpTaskServer(TaskManager manager) throws IOException, InterruptedException {

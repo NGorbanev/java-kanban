@@ -1,6 +1,5 @@
 package taskManager;
 
-import api.HttpTaskServer;
 import api.adapters.InstantAdapter;
 import com.google.gson.*;
 import issues.Epic;
@@ -11,7 +10,6 @@ import utils.KVTaskClient;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.stream.Collectors;
 
 public class HttpTaskManager extends FileBackedTasksManager {
 

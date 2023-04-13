@@ -114,7 +114,7 @@ public class HttpServerTest {
     }
 
     @BeforeEach
-    public void start() throws IOException {
+    public void start() {
         testTask = createNonCrossingTask();
         testEpic = createEpic();
         testSubTask = createNonCrossingSubTask();
@@ -122,8 +122,7 @@ public class HttpServerTest {
 
     @AfterEach
     public void stop(){
-        //manager.deleteAllSubTasks();
-        manager.deleteAllEpics();
+        manager.deleteAllEpics(); // this will delete subtasks also
         manager.deleteAllTasks();
         System.out.println(this.getClass().getSimpleName() + ": data was reset \n");
         Assertions.assertEquals(0, manager.getTaskList().size(), "Failed to reset tasks list");

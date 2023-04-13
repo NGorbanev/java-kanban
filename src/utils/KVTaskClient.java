@@ -7,7 +7,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 public class KVTaskClient {
-    //private final URI url = URI.create("http://localhost:8078");
     private String serverURL;
     private String token;
     HttpClient client = HttpClient.newHttpClient();
@@ -53,7 +52,7 @@ public class KVTaskClient {
         return successSaving;
     }
 
-    public String load(String key) throws IOException, InterruptedException {
+    public String load(String key)  {
         URI loadURL = URI.create(serverURL + "/load/" + key + "?API_TOKEN=" + token);
         HttpRequest loadRequest = HttpRequest.newBuilder()
                 .GET()
