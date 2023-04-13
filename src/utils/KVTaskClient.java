@@ -10,10 +10,7 @@ public class KVTaskClient {
     //private final URI url = URI.create("http://localhost:8078");
     private String serverURL;
     private String token;
-
-    public void setServerURL(String serverURL) {
-        this.serverURL = serverURL;
-    }
+    HttpClient client = HttpClient.newHttpClient();
 
     public KVTaskClient(String serverURL) throws IOException, InterruptedException {
         this.serverURL = serverURL;
@@ -24,7 +21,6 @@ public class KVTaskClient {
                 .header("Content-type", "application/json")
                 .build();
 
-        HttpClient client = HttpClient.newHttpClient();
         HttpResponse<String> tokenResponse = client.send(
                 getTokenRequest,
                 HttpResponse.BodyHandlers.ofString());
@@ -40,19 +36,18 @@ public class KVTaskClient {
                 .uri(saveUrl)
                 .header("Content-type", "application/json")
                 .build();
-        HttpClient client = HttpClient.newHttpClient();
-
         try {
             HttpResponse<String> response = client.send(
                     saveRequest,
                     HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() != 200) {
-                System.out.println("Save unsuccessful");
+                System.out.println(this.getClass().getSimpleName() +  ": Save unsuccessful. Response code:  "
+                        + response.statusCode());
                 successSaving = false;
             }
             successSaving = true;
         } catch (IOException | InterruptedException e){
-            System.out.println("Save data fail");
+            System.out.println(this.getClass().getSimpleName() +  ": Save data fail");
             successSaving = false;
         }
         return successSaving;
@@ -65,19 +60,18 @@ public class KVTaskClient {
                 .uri(loadURL)
                 .header("Content-type", "application/json")
                 .build();
-        HttpClient client = HttpClient.newHttpClient();
         try{
             HttpResponse<String> response = client.send(
                     loadRequest,
                     HttpResponse.BodyHandlers.ofString());
             if (response.body() == null){
-                System.out.println("Data loading failed");
+                System.out.println(this.getClass().getSimpleName() +  ": Data loading failed");
                 return null;
             }
             System.out.println(response.body());
             return response.body();
         } catch (IOException | InterruptedException e){
-            System.out.println("Data loading failed");
+            System.out.println(this.getClass().getSimpleName() +  ": Data loading failed");
             return null;
         }
     }

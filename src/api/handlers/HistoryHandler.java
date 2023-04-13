@@ -33,11 +33,10 @@ public class HistoryHandler implements HttpHandler {
                 responseData = json.toJson(manager.getHistory());
                 responseCode = 200;
                 break;
-
             default:
                 responseData = "This request is not supported";
                 responseCode = 405;
-
+                break;
         }
         exchange.sendResponseHeaders(responseCode,0);
         try(OutputStream os = exchange.getResponseBody()){

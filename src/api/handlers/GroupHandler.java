@@ -35,7 +35,7 @@ public class GroupHandler implements HttpHandler {
                 responseCode = 200;
                 responseData = gson.toJson(manager.getPrioritizedTasks());
                 break;
-/*
+
             case "DELETE":
                 responseCode = 200;
                 manager.deleteAllSubTasks();;
@@ -43,9 +43,11 @@ public class GroupHandler implements HttpHandler {
                 manager.deleteAllTasks();
                 responseData = "All issues were deleted";
                 break;
-*/
+
             default:
+                responseCode = 405;
                 responseData = "Wrong request method";
+                break;
         }
         exchange.sendResponseHeaders(responseCode,0);
         try(OutputStream os = exchange.getResponseBody()){

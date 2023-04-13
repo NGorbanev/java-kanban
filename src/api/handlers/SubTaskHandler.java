@@ -110,7 +110,11 @@ public class SubTaskHandler implements HttpHandler {
                         responseCode = 400;
                         responseData = "Wrong id format";
                     }
-                }
+                } break;
+            default:
+                responseData = "This request is not supported";
+                responseCode = 405;
+                break;
         }
         exchange.sendResponseHeaders(responseCode,0);
         try(OutputStream os = exchange.getResponseBody()){

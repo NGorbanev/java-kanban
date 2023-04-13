@@ -29,7 +29,7 @@ public class KVServer {
 
 	private void load(HttpExchange h) throws IOException{
 		try {
-			System.out.print(this.getClass().getSimpleName() + ": /load" + " ... ");
+			//System.out.print(this.getClass().getSimpleName() + ": /load" + " ... ");
 			if (!hasAuth(h)) {
 				System.out.println("Запрос неавторизован, нужен параметр в query API_TOKEN со значением апи-ключа");
 				h.sendResponseHeaders(403, 0);
@@ -43,7 +43,7 @@ public class KVServer {
 					return;
 				}
 				if (data.get(key) == null){
-					System.out.print("Данные не найдены на сервере");
+					//System.out.print("Данные не найдены на сервере");
 					h.sendResponseHeaders(404,0);
 					return;
 				}
@@ -94,7 +94,7 @@ public class KVServer {
 
 	private void register(HttpExchange h) throws IOException {
 		try {
-			System.out.println(this.getClass().getSimpleName() + ": /register");
+			//System.out.println(this.getClass().getSimpleName() + ": /register");
 			if ("GET".equals(h.getRequestMethod())) {
 				sendText(h, apiToken);
 			} else {

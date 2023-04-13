@@ -7,7 +7,6 @@ public class QueryParser {
      * @return
      */
 
-
     public int getIdFromQuery(String inputString){
         int issueID = Integer.parseInt(inputString.substring(inputString.indexOf("id=")+3));
         return issueID;

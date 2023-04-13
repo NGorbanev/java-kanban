@@ -32,10 +32,6 @@ public class HttpTaskManager extends FileBackedTasksManager {
         loadData();
     }
 
-    public void updateClientToken() throws IOException, InterruptedException {
-        client = client = new KVTaskClient(this.serverURL);
-    }
-
     public void loadData() throws IOException, InterruptedException {
 
         // loading issues
@@ -83,21 +79,16 @@ public class HttpTaskManager extends FileBackedTasksManager {
     @Override
     public void save(){
         try {
-            client.put(historyKey, json.toJson(getHistory()
-                    .stream()
-                    .map(Task::getId)
-                    .collect(Collectors.toList())));
             client.put(tasksKey, json.toJson(taskList.values()));
             client.put(epicsKey, json.toJson(epicList.values()));
             client.put(subTasksKey, json.toJson(subtaskList.values()));
-
-            //ArrayList<Integer> historyItemsIDs = new ArrayList<>();
-            //for (Task issue : history.getHistory()){
-            //    historyItemsIDs.add(issue.getId());
-            //}
-            //client.put(historyKey, json.toJson(historyItemsIDs));
+            ArrayList<Integer> historyItemsIDs = new ArrayList<>();
+            for (Task issue : history.getHistory()){
+                historyItemsIDs.add(issue.getId());
+            }
+            client.put(historyKey, json.toJson(historyItemsIDs));
         } catch (IOException | InterruptedException e){
-            System.out.println("Save data fail");
+            System.out.println(this.getClass().getSimpleName() + ": Save data fail");
         }
     }
 

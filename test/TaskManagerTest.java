@@ -111,8 +111,8 @@ public abstract class TaskManagerTest<T extends TaskManager> {
                 "Неверный статус Task");
 
         // history check
-        //Assertions.assertEquals(1, manager.getHistory().size(),
-        //        "количество записей в истории не соответствует ожидаемому");
+        Assertions.assertEquals(1, manager.getHistory().size(),
+                "количество записей в истории не соответствует ожидаемому");
     }
     @Test
     public void epicTestingUnit(){
@@ -285,14 +285,6 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     public void createSubTaskTest(){
         Assertions.assertEquals(1, manager.getSubtaskList().size());
 
-        /*
-        Assertions.assertThrows(NullPointerException.class, () -> {
-            SubTask subTaskForNullEpic = manager.createSubTask(new SubTask(
-                    "Test subtask",
-                    "Link to null epic",
-                    100))
-                    ;});
-        */
         Assertions.assertNull(manager.createSubTask(new SubTask(
                 "Test subtask",
                 "Link to null epic",
@@ -325,7 +317,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         manager.setSubTaskStatus(testSubTask, StatusList.DONE);
         Assertions.assertEquals(StatusList.DONE, testSubTask.getStatus());
         // history check. Should be two because getSubTaskById was used before
-        //Assertions.assertEquals(2, manager.getHistory().size());
+        Assertions.assertEquals(2, manager.getHistory().size());
     }
     @Test
     public void linkSubTaskTest(){
@@ -529,26 +521,6 @@ public abstract class TaskManagerTest<T extends TaskManager> {
                 manager.getSubTaskById(testSubtask2.getId()).getStartTime().
                         minusMillis(manager.getTaskById(testTask.getId()).getDuration()).toEpochMilli());
     }
-/*
-    @Test
-    public void testIntersection() {
-        Instant now = LocalDateTime.of(
-                LocalDate.now().plusYears(1),
-                LocalTime.of(0, 0, 0)).toInstant(ZoneOffset.UTC);
-        Task task1 = manager.createTask(
-                new Task("task 1", "", StatusList.NEW, 0, now, 60));
-        Assertions.assertThrows(TimeLineCrossingsException.class,
-                ()->{
-                    Task task2 = manager.createTask(
-                            new Task(
-                                    "task 2",
-                                    "",
-                                    StatusList.NEW,
-                                    0,
-                                    task1.getStartTime().plusSeconds(-1800), 60));
-                });
-    }
-    */
 }
 
 
