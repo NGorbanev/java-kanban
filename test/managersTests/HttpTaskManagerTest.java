@@ -1,3 +1,5 @@
+package managersTests;
+
 import org.junit.jupiter.api.*;
 import taskManager.HttpTaskManager;
 import utils.KVServer;

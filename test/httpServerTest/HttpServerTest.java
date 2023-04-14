@@ -1,3 +1,5 @@
+package httpServerTest;
+
 import api.HttpTaskServer;
 import api.adapters.InstantAdapter;
 import com.google.gson.Gson;

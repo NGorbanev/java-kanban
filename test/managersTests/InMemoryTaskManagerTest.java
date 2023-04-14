@@ -1,3 +1,5 @@
+package managersTests;
+
 import interfaces.TaskManager;
 import org.junit.jupiter.api.BeforeEach;
 import utils.Managers;

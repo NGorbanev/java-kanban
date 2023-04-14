@@ -29,7 +29,6 @@ public class KVServer {
 
 	private void load(HttpExchange h) throws IOException{
 		try {
-			//System.out.print(this.getClass().getSimpleName() + ": /load" + " ... ");
 			if (!hasAuth(h)) {
 				System.out.println("Запрос неавторизован, нужен параметр в query API_TOKEN со значением апи-ключа");
 				h.sendResponseHeaders(403, 0);
@@ -43,15 +42,13 @@ public class KVServer {
 					return;
 				}
 				if (data.get(key) == null){
-					//System.out.print("Данные не найдены на сервере");
 					h.sendResponseHeaders(404,0);
 					return;
 				}
 				sendText(h, data.get(key));
 				System.out.println("Данные успешно возвращены");
-
 			} else {
-				System.out.println("/load ждёт GET-запрос, а получил: " + h.getRequestMethod());
+				System.out.printf("/load ждёт GET-запрос, а получил: %s", h.getRequestMethod());
 				h.sendResponseHeaders(405, 0);
 			}
 		} finally {
@@ -61,7 +58,6 @@ public class KVServer {
 
 	private void save(HttpExchange h) throws IOException {
 		try {
-			//System.out.println(this.getClass().getSimpleName() + ": /save ... ");
 			if (!hasAuth(h)) {
 				System.out.println("Запрос неавторизован, нужен параметр в query API_TOKEN со значением апи-ключа");
 				h.sendResponseHeaders(403, 0);
@@ -81,7 +77,6 @@ public class KVServer {
 					return;
 				}
 				data.put(key, value);
-				//System.out.println("Значение для ключа " + key + " успешно обновлено!");
 				h.sendResponseHeaders(200, 0);
 			} else {
 				System.out.println("/save ждёт POST-запрос, а получил: " + h.getRequestMethod());
@@ -94,7 +89,6 @@ public class KVServer {
 
 	private void register(HttpExchange h) throws IOException {
 		try {
-			//System.out.println(this.getClass().getSimpleName() + ": /register");
 			if ("GET".equals(h.getRequestMethod())) {
 				sendText(h, apiToken);
 			} else {

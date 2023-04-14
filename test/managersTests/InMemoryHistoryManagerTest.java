@@ -1,3 +1,5 @@
+package managersTests;
+
 import history.InMemoryHistoryManager;
 import issues.StatusList;
 import issues.Task;
